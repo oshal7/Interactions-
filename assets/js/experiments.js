@@ -10,16 +10,15 @@ export const SOURCE = { label: "tol.is", url: "https://tol.is", author: "Tolis C
 
 export const EXPERIMENTS = [
   // ---- built ----
-  // (the first rebuild goes here, e.g.)
-  // {
-  //   slug: "potters-clay",
-  //   title: "Potter's clay",
-  //   summary: "Press into a spinning lump of clay and shape it one revolution at a time.",
-  //   status: "built",
-  //   tags: ["Lathe geometry", "Web Audio"],
-  //   source: { label: "tol.is/clay", url: "https://tol.is/clay" },
-  //   accent: "#c2703d",
-  // },
+  {
+    slug: "paper-plane",
+    title: "Paper plane",
+    summary: "A flock of folded paper planes gliding through a 3D sky. Tap one to knock it tumbling, sweep past for a gust, drag to throw a new one.",
+    status: "built",
+    tags: ["3D projection", "Glider physics", "Painter's algorithm", "Panned Web Audio"],
+    source: { label: "tol.is", url: "https://tol.is" },
+    accent: "#9fb6cc",
+  },
 
   // ---- queued from tol.is (names as listed on the site) ----
   ...[

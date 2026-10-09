@@ -171,39 +171,51 @@ export function createSynth(options = {}) {
       noiseBuf = makeNoise(ctx, 1.5);
     }
     if (ctx.state === "suspended") ctx.resume();
-    master.gain.value = settings.volume;
+    master.gain.value = settings.enabled ? settings.volume : 0;
     return ctx;
   }
 
   // Shape a gain node: quick attack, exponential fall to silence.
-  function envelope(t, peak, attack, dur) {
+  // pan: -1 (left) … 1 (right), so a sound can come from where its object is.
+  function envelope(t, peak, attack, dur, pan = 0) {
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + attack);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    g.connect(master);
+    if (pan && ctx.createStereoPanner) {
+      const p = ctx.createStereoPanner();
+      p.pan.value = Math.max(-1, Math.min(1, pan));
+      g.connect(p).connect(master);
+    } else {
+      g.connect(master);
+    }
     return g;
   }
 
   return {
     settings,
-    set(patch) { Object.assign(settings, patch); },
+    set(patch) {
+      Object.assign(settings, patch);
+      if (master) master.gain.value = settings.enabled ? settings.volume : 0;   // live volume + mute
+    },
     // Call from a user gesture (e.g. the Play button) so later sounds aren't blocked.
     unlock() { ensure(); },
+    // Raw access for continuous sounds (wind, drones): { ctx, master, noise } or null.
+    context() { return ensure() ? { ctx, master, noise: noiseBuf } : null; },
 
-    tone({ freq = 440, to, type = "sine", dur = 0.15, gain = 0.5, attack = 0.005, delay = 0 } = {}) {
+    tone({ freq = 440, to, type = "sine", dur = 0.15, gain = 0.5, attack = 0.005, delay = 0, pan = 0 } = {}) {
       if (!settings.enabled || !ensure()) return;
       const t = ctx.currentTime + delay;
       const osc = ctx.createOscillator();
       osc.type = type;
       osc.frequency.setValueAtTime(freq, t);
       if (to) osc.frequency.exponentialRampToValueAtTime(to, t + dur);
-      osc.connect(envelope(t, gain, attack, dur));
+      osc.connect(envelope(t, gain, attack, dur, pan));
       osc.start(t);
       osc.stop(t + dur + 0.05);
     },
 
-    noise({ dur = 0.2, freq = 1200, to, q = 0.8, filter = "lowpass", gain = 0.5, attack = 0.003, delay = 0 } = {}) {
+    noise({ dur = 0.2, freq = 1200, to, q = 0.8, filter = "lowpass", gain = 0.5, attack = 0.003, delay = 0, pan = 0 } = {}) {
       if (!settings.enabled || !ensure()) return;
       const t = ctx.currentTime + delay;
       const src = ctx.createBufferSource();
@@ -213,7 +225,7 @@ export function createSynth(options = {}) {
       f.Q.value = q;
       f.frequency.setValueAtTime(freq, t);
       if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
-      src.connect(f).connect(envelope(t, gain, attack, dur));
+      src.connect(f).connect(envelope(t, gain, attack, dur, pan));
       src.start(t);
       src.stop(t + dur + 0.05);
     },

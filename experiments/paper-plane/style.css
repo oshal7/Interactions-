@@ -1,0 +1,33 @@
+/* Paper plane: sky colours live here; layout comes from experiment.css. */
+
+.exp-stage {
+  --stage-bg: linear-gradient(180deg, #cfdbe6 0%, #e6ebee 55%, #f3eee4 100%);
+  --chrome-ink: rgba(30, 38, 48, 0.72);
+  transition: background 0.6s ease;
+}
+.exp-stage.night {
+  --stage-bg: linear-gradient(180deg, #05070d 0%, #0c1322 60%, #18182a 100%);
+  --chrome-ink: rgba(239, 238, 233, 0.7);
+}
+/* chrome text is dark on the day sky */
+.exp-stage:not(.night) .exp-title b { color: #1b222b; }
+.exp-stage:not(.night) .exp-btn {
+  background: rgba(255, 255, 255, 0.55);
+  color: #1b222b;
+  border-color: rgba(27, 34, 43, 0.15);
+}
+.exp-stage:not(.night) .exp-btn[aria-pressed="true"] { background: #1b222b; color: #f3eee4; border-color: #1b222b; }
+
+.seg { display: flex; gap: 4px; }
+
+.exp-btn { white-space: nowrap; }
+@media (max-width: 760px) {
+  .exp-btn .lbl { display: none; }
+  .exp-btn { padding: 0 11px; }
+}
+
+/* this piece takes every touch on the sky (for throwing), so on phones
+   leave a strip of page below it to scroll from */
+@media (hover: none) {
+  .exp-stage { height: 86svh; }
+}
