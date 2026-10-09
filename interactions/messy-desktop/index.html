@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Messy Desktop · Interaction Lab</title>
+  <meta name="description" content="A landing page dressed up as a cluttered desktop: drag, throw and stack app windows, then put them all away from the menu bar.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="#how">How it's built</a>
+        <a href="../../">All patterns</a>
+      </nav>
+    </header>
+
+    <div class="lab-intro">
+      <div>
+        <p class="eyebrow">02 · Spotted on the landing page of Later, a Mac app</p>
+        <h1>Messy desktop</h1>
+        <p class="muted">Grab any window and drag it around, or flick it to throw it. Click the ☁︎ icon in the menu bar to put
+          every window away, and press ↺ to bring them back (or press T).</p>
+      </div>
+    </div>
+
+    <main class="lab">
+      <!-- ======================= THE INTERACTION ======================= -->
+      <section class="desk" id="desk" aria-label="Interactive demo: draggable windows">
+        <div class="menubar">
+          <div class="menubar-left">
+            <b>Tidy</b><span>File</span><span>Edit</span><span>View</span><span>Window</span>
+          </div>
+          <div class="menubar-right">
+            <div class="tray-wrap">
+              <button class="tray-btn" id="trayBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="popover" title="Tidy">☁︎</button>
+              <span class="tray-hint" aria-hidden="true">Try it!
+                <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M3 27 C 10 22, 18 14, 25 5" /><path d="M17 5 L25 5 L24 13" />
+                </svg>
+              </span>
+              <div class="popover" id="popover" role="dialog" aria-label="Tidy settings" hidden>
+                <div class="popover-head"><b>Tidy</b><span>placeholder app</span></div>
+                <label><input type="checkbox" data-key="momentum"> Throw windows with momentum</label>
+                <label><input type="checkbox" data-key="tilt"> Tilt while dragging</label>
+                <label><input type="checkbox" data-key="bounce"> Bounce off the edges</label>
+                <label><input type="checkbox" data-key="sound"> Sounds</label>
+                <button class="popover-main" id="stashBtn" type="button">Put windows away <kbd>T</kbd></button>
+              </div>
+            </div>
+            <span aria-hidden="true">◐</span>
+            <span id="clock" aria-hidden="true">—</span>
+          </div>
+        </div>
+
+        <!-- the "landing page" underneath, all placeholder -->
+        <div class="page">
+          <button class="restore-btn" id="restoreBtn" type="button" aria-label="Bring the windows back" title="Bring them back">↺</button>
+          <h2>Clear the desk.<br><em>Keep the thought.</em></h2>
+          <p>A placeholder app that tucks your windows away and brings them back when you're ready.</p>
+          <span class="page-cta">Get the placeholder</span>
+          <div class="features">
+            <div><b>Focus mode</b><span>Hide everything for a meeting, a screen share, or a nap.</span></div>
+            <div><b>Pick up later</b><span>Every window comes back right where you left it.</span></div>
+            <div><b>One shortcut</b><span>No setup. Press a key, the clutter's gone.</span></div>
+          </div>
+        </div>
+
+        <!-- windows are injected here by main.js -->
+        <div id="windows"></div>
+      </section>
+
+      <!-- ======================= PLAYGROUND ======================= -->
+      <aside class="panel" aria-label="Playground controls">
+        <fieldset>
+          <legend>Pick up</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-lift">Lift (grow when grabbed)</label><output data-out="lift"></output></div>
+            <input id="c-lift" type="range" min="1" max="1.15" step="0.01" data-key="lift">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-tiltAmount">Tilt strength</label><output data-out="tiltAmount"></output></div>
+            <input id="c-tiltAmount" type="range" min="0" max="3" step="0.1" data-key="tiltAmount">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-maxTilt">Max tilt</label><output data-out="maxTilt"></output></div>
+            <input id="c-maxTilt" type="range" min="2" max="30" step="1" data-key="maxTilt">
+          </div>
+          <label class="row-inline"><span>Tilt while dragging</span><input type="checkbox" data-key="tilt"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Let go</legend>
+          <label class="row-inline"><span>Throw with momentum</span><input type="checkbox" data-key="momentum"></label>
+          <div class="row">
+            <div class="row-head"><label for="c-glide">Glide (lower = stops sooner)</label><output data-out="glide"></output></div>
+            <input id="c-glide" type="range" min="0.8" max="0.985" step="0.005" data-key="glide">
+          </div>
+          <label class="row-inline"><span>Bounce off the edges</span><input type="checkbox" data-key="bounce"></label>
+          <div class="row">
+            <div class="row-head"><label for="c-bounciness">Bounciness</label><output data-out="bounciness"></output></div>
+            <input id="c-bounciness" type="range" min="0.1" max="0.95" step="0.05" data-key="bounciness">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Arrange</legend>
+          <div class="btns">
+            <button class="btn" type="button" data-action="scatter">Scatter</button>
+            <button class="btn" type="button" data-action="tidy">Tidy into grid</button>
+            <button class="btn" type="button" data-action="pile">Pile in the middle</button>
+            <button class="btn" type="button" data-action="cascade">Cascade</button>
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-size">Window size</label><output data-out="size"></output></div>
+            <input id="c-size" type="range" min="0.6" max="1.3" step="0.05" data-key="size">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-stagger">Put-away stagger</label><output data-out="stagger"></output></div>
+            <input id="c-stagger" type="range" min="0" max="160" step="5" data-key="stagger">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sound</legend>
+          <label class="row-inline"><span>Sounds on</span><input type="checkbox" data-key="sound"></label>
+          <div class="row">
+            <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+            <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+          </div>
+          <p class="panel-note">Pop on pick-up, thock on drop, tick on wall hits. The original had no UI sounds; these are an addition.</p>
+        </fieldset>
+
+        <fieldset>
+          <div class="btns">
+            <button class="btn primary" type="button" data-action="reset">Reset everything</button>
+          </div>
+        </fieldset>
+      </aside>
+    </main>
+
+    <!-- ======================= BREAKDOWN ======================= -->
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built</p>
+      <h2>A fake desktop, <span class="serif">real physics.</span></h2>
+      <p class="muted">The original sells a Mac app by turning its own landing page into a cluttered desktop. You don't read about
+        the clutter, you get to move it. Underneath it's a handful of ideas: a stage, absolutely-positioned windows, pointer
+        events, a z-index counter, and (in this rebuild) a small animation loop for momentum, tilt and the put-away animation.</p>
+
+      <h3 style="margin-top:40px">What I saw in the original (from a screen recording)</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th>Piece</th><th>Observation</th><th>How this rebuild does it</th></tr></thead>
+          <tbody>
+            <tr><td>Desktop</td><td>The whole hero is a black "desktop" with a macOS-style menu bar: app name on the left, status icons and clock on the right.</td><td>A <code>.desk</code> stage with a blurred, translucent <code>.menubar</code> and a live clock.</td></tr>
+            <tr><td>Windows</td><td>~10 app screenshots scattered over the page, overlapping and partly covering the headline.</td><td>Mock windows built in HTML/CSS (<code>windows.js</code>), placed by fractional coordinates.</td></tr>
+            <tr><td>Dragging</td><td>Pressing a window brings it to the front immediately; dragging moves it 1:1 with the cursor. No lift, tilt or inertia. It stops dead on release.</td><td>Same by default (1:1 follow, z-index on press), plus optional lift, tilt, throw and bounce.</td></tr>
+            <tr><td>Menu-bar app</td><td>A hand-drawn "Try it!" arrow points at a menu-bar icon. Clicking it drops down a small panel with checkboxes and a big "Save windows" button.</td><td>A tray button + popover; its checkboxes really control the demo, and the button puts every window away.</td></tr>
+            <tr><td>Restore</td><td>A ↺ button above the headline.</td><td>Brings the windows back, flying out of the tray icon.</td></tr>
+            <tr><td>Sound</td><td>No designed UI sounds; the audio is room noise and real mouse clicks.</td><td>Optional synthesised pop/thock/tick, reusing <code>assets/js/sound.js</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b>A positioned stage</b><span><code>position: relative; overflow: hidden</code>. Every window is absolutely positioned inside it.</span></li>
+        <li><b>Pointer events</b><span>One code path for mouse, touch and pen: <code>pointerdown / move / up</code>.</span></li>
+        <li><b>Pointer capture</b><span><code>setPointerCapture</code> keeps the drag going even if the pointer outruns the window.</span></li>
+        <li><b><code>touch-action: none</code></b><span>Stops the phone from scrolling the page when you drag a window.</span></li>
+        <li><b>A z-index counter</b><span>Each press sets <code>z-index = ++top</code>. That's the whole "bring to front".</span></li>
+        <li><b>Transforms, not left/top</b><span><code>translate()</code> moves on the GPU without re-layout, so dragging stays at 60fps.</span></li>
+        <li><b><code>requestAnimationFrame</code> loop</b><span>Runs only while something moves: momentum, tilt spring, glides.</span></li>
+        <li><b>Velocity sampling</b><span>The last ~80ms of pointer positions gives a throw speed and the tilt direction.</span></li>
+        <li><b><code>backdrop-filter</code></b><span>Frosted menu bar and popover, like the real macOS chrome.</span></li>
+        <li><b>Keyboard support</b><span>Windows are focusable; arrow keys move them, and the tray works with Tab + Enter.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>Each window is just a box with a centre point</h3>
+            <p>Windows store their <em>centre</em> (<code>x, y</code>) plus rotation and scale. Rendering is a single transform,
+              so rotating and scaling always happen around the middle of the window. Starting positions are fractions of the stage
+              (0–1), so the layout survives resizing.</p>
+<pre><code>el.style.transform =
+  `translate(${x - w / 2}px, ${y - h / 2}px) rotate(${rot}deg) scale(${scale})`;</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Drag: remember where you grabbed it</h3>
+            <p>On press we store the offset between the pointer and the window's centre, then on every move set the centre to
+              <code>pointer − offset</code>. Without the offset, the window would jump so its centre snaps to your cursor.</p>
+<pre><code>win.el.addEventListener("pointerdown", (e) =&gt; {
+  win.el.setPointerCapture(e.pointerId);
+  win.el.style.zIndex = ++topZ;              // bring to front
+  const p = toStage(e);
+  win.grab = { dx: p.x - win.x, dy: p.y - win.y };
+});
+win.el.addEventListener("pointermove", (e) =&gt; {
+  if (!win.grab) return;
+  const p = toStage(e);
+  win.x = p.x - win.grab.dx;
+  win.y = p.y - win.grab.dy;
+});</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Throw: measure the flick, then let friction win</h3>
+            <p>We keep the last few pointer samples. On release, the distance travelled over the last ~80ms is the window's velocity.
+              Each frame the window moves by that velocity, and the velocity shrinks by the <em>Glide</em> factor. Multiplying by
+              <code>dt / 16</code> keeps it the same speed on 60Hz and 120Hz screens.</p>
+<pre><code>const f = Math.pow(config.glide, dt / 16);   // friction per frame
+win.vx *= f;  win.vy *= f;
+win.x += win.vx * dt;
+win.y += win.vy * dt;
+
+// wall hit: clamp, flip direction, lose some energy
+if (win.x &lt; minX) { win.x = minX; win.vx = -win.vx * config.bounciness; }</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Tilt: lean into the movement, spring back after</h3>
+            <p>The window's target angle is its horizontal speed times <em>Tilt strength</em>, capped at <em>Max tilt</em>.
+              Instead of jumping there, the angle eases 20% of the way each frame. That smoothing is what makes it feel
+              like it has weight. When you stop moving, the target goes back to 0 and it settles flat.</p>
+<pre><code>const target = clamp(win.vx * 20 * config.tiltAmount, -config.maxTilt, config.maxTilt);
+win.rot += (target - win.rot) * 0.2;</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Put away / bring back: glide to a target</h3>
+            <p>"Put windows away" saves every window's position, then gives each one a target at the tray icon: scale 0.05,
+              opacity 0, and a staggered delay so they leave one after another. The same easing step moves them
+              (<code>value += (target − value) × k</code>). "Bring back" just swaps the targets for the saved positions.
+              Arranging (tidy, pile, cascade, scatter) reuses the same mechanism with different targets.</p>
+<pre><code>windows.forEach((win, i) =&gt; {
+  win.home = { x: win.x, y: win.y };
+  glideTo(win, { x: tray.x, y: tray.y, scale: 0.05, alpha: 0 }, i * config.stagger);
+});</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Only animate when something is moving</h3>
+            <p>The <code>requestAnimationFrame</code> loop starts on the first press or glide and stops itself once every
+              window is still. An idle page uses no CPU, and nothing fights with the pointer handlers. With
+              <code>prefers-reduced-motion</code>, throws and glides finish instantly.</p>
+          </div>
+        </section>
+      </div>
+
+      <h3 style="margin-top:56px">Other ways to build it</h3>
+      <ul class="ingredients">
+        <li><b>Motion / Framer Motion</b><span><code>&lt;motion.div drag dragMomentum dragConstraints&gt;</code> gives you drag + inertia in one prop if you're in React.</span></li>
+        <li><b>GSAP Draggable + Inertia</b><span>Battle-tested dragging with throw physics and snapping.</span></li>
+        <li><b>interact.js</b><span>Drag, resize and gestures, framework-free.</span></li>
+        <li><b>HTML drag-and-drop API</b><span>Not a fit: it shows a ghost image instead of moving the real element, and has no touch support.</span></li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      Pattern spotted on the landing page of Later, a Mac app. Rebuilt from scratch with placeholder windows and copy for learning.
+      · <a href="../../">Back to the library</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

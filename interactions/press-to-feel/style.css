@@ -4,14 +4,6 @@
    from main.js, so the CSS only describes *how* things move.
    --------------------------------------------------------------- */
 
-.lab {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
-  align-items: start;
-  padding-bottom: 8px;
-}
-
 /* =============== STAGE =============== */
 .stage {
   /* defaults; main.js overwrites these from the controls */
@@ -280,80 +272,6 @@
   pointer-events: none;
 }
 
-/* =============== CONTROL PANEL =============== */
-.panel {
-  position: sticky;
-  top: 16px;
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 6px 16px 16px;
-  font-size: 13px;
-}
-.panel fieldset {
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  margin: 0;
-  padding: 14px 0;
-  display: grid;
-  gap: 10px;
-}
-.panel fieldset:last-of-type { border-bottom: 0; }
-.panel legend {
-  float: left;
-  width: 100%;
-  padding: 0;
-  margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.row { display: grid; gap: 4px; }
-.row-head { display: flex; justify-content: space-between; gap: 8px; color: var(--ink-2); }
-.row-head output { font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
-.row-inline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink-2); }
-
-.panel input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
-.panel select,
-.panel input[type="text"] {
-  width: 100%;
-  font: inherit;
-  color: var(--ink);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-.panel input[type="color"] {
-  width: 36px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: none;
-  cursor: pointer;
-}
-.swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
-
-.btns { display: flex; flex-wrap: wrap; gap: 6px; }
-.btn {
-  font: inherit;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: var(--ink);
-  cursor: pointer;
-}
-.btn:hover { border-color: var(--ink-3); }
-.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-
 .pos-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -371,22 +289,7 @@
 .pos-grid button:hover { border-color: var(--ink-3); }
 .pos-grid button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
 
-.panel-note { color: var(--ink-3); font-size: 12px; margin: 0; }
-
-.lab-intro {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px 24px;
-  padding: 20px 0 20px;
-}
-.lab-intro h1 { margin: 0; font-size: clamp(30px, 4.5vw, 48px); letter-spacing: -0.035em; line-height: 1; font-weight: 600; }
-.lab-intro p { margin: 6px 0 0; max-width: 60ch; }
-
 @media (max-width: 960px) {
-  .lab { grid-template-columns: minmax(0, 1fr); }
-  .panel { position: static; max-height: none; }
   .stage { height: clamp(500px, 75vh, 680px); }
 }
 

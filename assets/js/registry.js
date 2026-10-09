@@ -15,6 +15,20 @@ export const INTERACTIONS = [
     accent: "#3b3bff",
     accent2: "#f2c94c",
     added: "2026-10-09",
+    thumb: "key",
+  },
+  {
+    slug: "messy-desktop",
+    number: "02",
+    title: "Messy desktop",
+    summary:
+      "A landing page dressed up as a cluttered desktop. Drag, throw and stack app windows, then put them all away from the menu bar.",
+    spottedOn: { label: "Later (Mac app landing page)" },
+    ingredients: ["Pointer events", "Pointer capture", "z-index stacking", "rAF physics loop", "Velocity sampling", "backdrop-filter"],
+    accent: "#0a0a0c",
+    accent2: "#4c6bff",
+    added: "2026-10-09",
+    thumb: "windows",
   },
   // {
   //   slug: "my-next-pattern",

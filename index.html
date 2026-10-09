@@ -48,7 +48,7 @@
       place-items: center;
       overflow: hidden;
     }
-    .thumb::before {
+    .thumb-key::before {
       /* the "reveal" circle, half-way through */
       content: "";
       position: absolute;
@@ -72,6 +72,32 @@
       transform: rotate(0deg) translateY(5px);
       box-shadow: 0 2px 0 color-mix(in oklab, var(--b) 60%, black), 0 8px 18px rgba(0,0,0,.35);
     }
+    /* "windows" thumbnail: a few tiny draggable-looking windows */
+    .mini-win {
+      position: absolute;
+      width: 38%;
+      aspect-ratio: 1.45;
+      border-radius: 7px;
+      background: #1d1d23;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.5);
+      transition: transform .45s cubic-bezier(.2,.8,.2,1);
+    }
+    .mini-win::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 14%;
+      border-radius: 7px 7px 0 0;
+      background: #2a2a31 radial-gradient(circle at 8% 50%, #ff5f57 0 3px, transparent 3.5px);
+    }
+    .mini-win.w1 { left: 10%; top: 18%; background: #fbfaf7; transform: rotate(-4deg); }
+    .mini-win.w1::before { background-color: #e6e4dd; }
+    .mini-win.w2 { left: 42%; top: 30%; background: linear-gradient(160deg, var(--b), #8fa3ff); }
+    .mini-win.w3 { left: 26%; top: 48%; transform: rotate(3deg); }
+    .card:hover .mini-win.w1 { transform: translate(-10%, -8%) rotate(-9deg); }
+    .card:hover .mini-win.w2 { transform: translate(14%, -6%) rotate(5deg); }
+    .card:hover .mini-win.w3 { transform: translate(-4%, 14%) rotate(-2deg); }
+
     .num {
       position: absolute;
       top: 14px;
@@ -131,9 +157,11 @@
 
     grid.innerHTML = INTERACTIONS.map((it) => `
       <a class="card" href="interactions/${esc(it.slug)}/" style="--a:${esc(it.accent)};--b:${esc(it.accent2)}">
-        <div class="thumb" aria-hidden="true">
+        <div class="thumb thumb-${esc(it.thumb ?? "key")}" aria-hidden="true">
           <span class="num">${esc(it.number)}</span>
-          <span class="mini-key"></span>
+          ${it.thumb === "windows"
+            ? `<span class="mini-win w1"></span><span class="mini-win w2"></span><span class="mini-win w3"></span>`
+            : `<span class="mini-key"></span>`}
         </div>
         <div class="card-body">
           <h2>${esc(it.title)}</h2>
