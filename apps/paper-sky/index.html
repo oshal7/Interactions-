@@ -58,9 +58,9 @@
     </header>
 
     <section class="hero">
-      <p class="eyebrow">Apps · macOS · free</p>
+      <p class="eyebrow">Apps · macOS · Android · iPhone · free</p>
       <h1>Paper Sky</h1>
-      <p class="muted">The drifting paper-plane sky from <a href="../../experiments/paper-plane/v2/">Paper plane v2</a>, living on your Mac:
+      <p class="muted">The drifting paper-plane sky from <a href="../../experiments/paper-plane/v2/">Paper plane v2</a>, on your Mac and <a href="#phones">your phone</a>. On the Mac:
         as the screen saver when you lock up, as a live wallpaper that follows your cursor, and as a full-screen ambient mode
         you can play with, with sound.</p>
     </section>
@@ -108,6 +108,38 @@
         would be handling your login password. Paper Sky never sees your password. It's the picture; macOS is the lock. The trade-off is that the
         screen saver can't be interactive, because macOS dismisses screen savers on any mouse movement. For play, use Ambient mode.
       </div>
+
+      <h2 style="margin-top:64px" id="phones">On your phone</h2>
+      <p class="muted">Phones decide what may run on the lock screen, so each platform gets the best it allows. Your PIN, pattern or Face ID
+        always stays with the phone; Paper Sky never sees it.</p>
+      <div class="modes">
+        <div class="mode"><b>Android · live wallpaper</b>
+          <span>A real live wallpaper app. <b>Home screen:</b> fully interactive, planes follow your finger, and swiping between pages adds a gentle parallax.
+            <b>Lock screen:</b> the sky keeps moving on its own (Android keeps lock-screen touches for itself, so an invisible hand draws slow loops through the planes).
+            The app itself is a full-screen interactive sky with settings.</span>
+          <em>Android 8.0+ · 30 fps (20 in Battery Saver) · stops when not visible</em></div>
+        <div class="mode"><b>iPhone · home-screen app</b>
+          <span>iOS doesn't allow animated or interactive lock screens from apps. Add Paper Sky to your Home Screen instead: it opens full screen,
+            follows your finger, plays the ambient sound, shows an optional clock, and works offline.</span>
+          <em>Safari › Share › Add to Home Screen</em></div>
+        <div class="mode"><b>iPhone · lock-screen wallpaper</b>
+          <span>The <a href="studio.html">Wallpaper studio</a> saves the sky at your iPhone's exact resolution as a still, or records a short loop you can
+            turn into a Live Photo wallpaper (iOS plays it briefly when you wake the phone).</span>
+          <em>Any iPhone · iOS 17+ for Live Photo wallpapers</em></div>
+      </div>
+      <div class="download">
+        <a class="dl" href="https://github.com/oshal7/Interactions-/releases?q=paper-sky-android">↓ Android APK</a>
+        <a class="dl secondary" href="web/index.html?mode=interactive&amp;app=1&amp;clock=1&amp;dpr=2">Open the iPhone app page</a>
+        <a class="dl secondary" href="studio.html">Wallpaper studio</a>
+      </div>
+      <ol class="setup">
+        <li><b>Android:</b> download the APK on your phone and open it. Allow “Install unknown apps” for your browser when asked (it isn't from the Play Store).
+          Open Paper Sky › <b>⋯</b> › <b>Set as wallpaper</b> › <b>Home and lock screens</b>.</li>
+        <li><b>iPhone, interactive:</b> open the iPhone app page in <b>Safari</b> › Share › <b>Add to Home Screen</b>. Tap the icon; tap once to start the sound.
+          The <b>⋯</b> button switches mood, clock and sound.</li>
+        <li><b>iPhone, lock screen:</b> open the <a href="studio.html">Wallpaper studio</a> on the iPhone, pick your model, <b>Save still</b> › Save Image, then
+          set it from Photos › Share › <b>Use as Wallpaper</b>. For motion: <b>Record 6 s loop</b>, convert it to a Live Photo with a video-to-Live-Photo app, and set that.</li>
+      </ol>
 
       <h2 style="margin-top:64px">What it uses, <span class="serif">and how it saves.</span></h2>
       <p class="muted">Measured in Chrome on a cloud Linux machine (per frame: physics for every plane + drawing); Apple Silicon is typically faster.

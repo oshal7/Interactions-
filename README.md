@@ -48,6 +48,11 @@ folder to the next number, then change only the copy.
   - `.github/workflows/paper-sky-macos.yml` builds it on a macOS runner on every push to `apps/paper-sky/**` (zips as an artifact).
     Run the workflow by hand with **release** ticked to publish a GitHub Release.
   - It does not replace the macOS lock screen and never touches your password: locking uses the real screen saver lock.
+  - `android/`: Kotlin live wallpaper (home + lock screens) and an interactive app, no libraries. Built by
+    `.github/workflows/paper-sky-android.yml` into a sideloadable APK.
+  - iPhone: `web/` is an installable home-screen app (manifest, icons, offline service worker), and `studio.html` exports
+    lock-screen wallpapers (still at exact device resolution, or a video loop for Live Photo wallpapers). iOS doesn't allow
+    third-party interactive lock screens.
 
 ## Run it locally
 
@@ -94,7 +99,7 @@ interactions/
   _template/                   copy this to start a new pattern
 apps/
   index.html                   apps hub
-  paper-sky/                   landing page, web/ (standalone sky), macos/ (screen saver + menu-bar app + build.sh)
+  paper-sky/                   landing page, studio.html, web/ (standalone sky + PWA), macos/ (screen saver + menu-bar app), android/ (live wallpaper)
 experiments/
   index.html                   experiments hub (rebuilt + queue)
   _template/                   working starter piece ("Ripples")
@@ -104,5 +109,6 @@ experiments/
   wind-chimes/                 index.html → latest version
     v1/                        WebGL chime: physics.js (pendulums + collisions), audio.js (tube synthesis), main.js (three.js scene)
 .github/workflows/pages.yml    deploys the site to GitHub Pages
-.github/workflows/paper-sky-macos.yml  builds Paper Sky for macOS
+.github/workflows/paper-sky-macos.yml    builds Paper Sky for macOS
+.github/workflows/paper-sky-android.yml  builds Paper Sky for Android
 ```
