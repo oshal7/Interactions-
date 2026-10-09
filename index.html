@@ -98,6 +98,34 @@
     .card:hover .mini-win.w2 { transform: translate(14%, -6%) rotate(5deg); }
     .card:hover .mini-win.w3 { transform: translate(-4%, 14%) rotate(-2deg); }
 
+    /* "game" thumbnail: falling spikes, a star and the player dot */
+    .g-spike {
+      position: absolute;
+      top: -30%;
+      width: 2px;
+      height: 34%;
+      background: linear-gradient(transparent, var(--b));
+      animation: fall 2.4s linear infinite;
+    }
+    .g-spike::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: -5px;
+      border: 6px solid transparent;
+      border-top: 7px solid var(--b);
+      border-bottom: 0;
+    }
+    .g-spike.s1 { left: 22%; animation-delay: -0.4s; }
+    .g-spike.s2 { left: 58%; animation-delay: -1.5s; animation-duration: 1.9s; }
+    .g-spike.s3 { left: 80%; animation-delay: -0.9s; animation-duration: 2.8s; }
+    @keyframes fall { to { transform: translateY(420%); } }
+    .g-star { position: absolute; left: 38%; top: 34%; color: #fff; font-size: 20px; text-shadow: 0 0 10px #fff; }
+    .g-dot { position: absolute; left: 52%; top: 62%; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px #fff; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+    .card:hover .g-dot { transform: translate(-46px, -40px); }
+    .g-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: 44px; font-weight: 500; color: rgba(255,255,255,.18); letter-spacing: -.04em; }
+    @media (prefers-reduced-motion: reduce) { .g-spike { animation: none; top: 20%; } }
+
     .num {
       position: absolute;
       top: 14px;
@@ -153,15 +181,18 @@
     import { INTERACTIONS } from "./assets/js/registry.js";
 
     const grid = document.getElementById("library");
+    const THUMBS = {
+      key: `<span class="mini-key"></span>`,
+      windows: `<span class="mini-win w1"></span><span class="mini-win w2"></span><span class="mini-win w3"></span>`,
+      game: `<span class="g-time">00:12</span><span class="g-spike s1"></span><span class="g-spike s2"></span><span class="g-spike s3"></span><span class="g-star">✦</span><span class="g-dot"></span>`,
+    };
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
     grid.innerHTML = INTERACTIONS.map((it) => `
       <a class="card" href="interactions/${esc(it.slug)}/" style="--a:${esc(it.accent)};--b:${esc(it.accent2)}">
         <div class="thumb thumb-${esc(it.thumb ?? "key")}" aria-hidden="true">
           <span class="num">${esc(it.number)}</span>
-          ${it.thumb === "windows"
-            ? `<span class="mini-win w1"></span><span class="mini-win w2"></span><span class="mini-win w3"></span>`
-            : `<span class="mini-key"></span>`}
+          ${THUMBS[it.thumb] ?? THUMBS.key}
         </div>
         <div class="card-body">
           <h2>${esc(it.title)}</h2>

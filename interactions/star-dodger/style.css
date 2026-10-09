@@ -1,0 +1,217 @@
+/* ---------------------------------------------------------------
+   03 · Star dodger
+   The canvas paints the game; the DOM handles the backdrop page,
+   the HUD text and the overlays.
+   --------------------------------------------------------------- */
+
+.arena {
+  --spike: #a855f7;
+  --bomb: #e11d48;
+  --ink: #f2f1ee;
+  --ink-dim: #8d8c96;
+
+  position: relative;
+  height: clamp(560px, 80vh, 800px);
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #050506;
+  color: var(--ink);
+  container-type: inline-size;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.arena[data-state="playing"] { cursor: none; touch-action: none; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- placeholder portfolio behind the game ---------- */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: clamp(24px, 5cqi, 48px);
+  overflow: hidden;
+  transition: opacity 0.6s ease, filter 0.6s ease;
+}
+.arena:not([data-state="idle"]) .backdrop { opacity: 0.18; filter: grayscale(1); pointer-events: none; }
+
+.bd-eyebrow {
+  margin: 0 0 18px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.bd-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 3cqi, 28px);
+}
+.bd-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.bd-card b { font-size: 14px; margin-top: 8px; }
+.bd-card span { color: var(--ink-dim); line-height: 1.4; }
+.bd-shot {
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  background: #16161b;
+  border: 1px solid #24242b;
+}
+.bd-shot.s1 { background: linear-gradient(135deg, #1b1b22 40%, #2a2a36); }
+.bd-shot.s2 { background: repeating-linear-gradient(90deg, #18181e 0 18%, #22222b 18% 20%); }
+.bd-shot.s3 { background: radial-gradient(circle at 30% 40%, #2b2b38, #15151a 60%); }
+.bd-shot.s4 { background: linear-gradient(#22222a 0 18%, #16161b 18%); }
+.bd-shot.s5 { background: conic-gradient(from 90deg at 70% 60%, #1a1a20, #2b2b35, #1a1a20); }
+
+.bd-play { cursor: pointer; border-radius: 12px; }
+.bd-play .play-shot {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 50%, #1f1530, #0f0f14 70%);
+  border-color: #3b2a5c;
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1), border-color 0.25s;
+}
+.bd-play .pad { font-size: clamp(14px, 2.4cqi, 22px); letter-spacing: 0.3em; color: #c9b3ff; }
+.bd-play:hover .play-shot { transform: scale(1.03) rotate(-1deg); border-color: var(--spike); }
+.bd-play:focus-visible { outline: 2px solid var(--spike); outline-offset: 4px; }
+.bd-play b::after { content: " →"; color: var(--spike); }
+
+/* ---------- canvas ---------- */
+#canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.arena[data-state="playing"] .hud,
+.arena[data-state="paused"] .hud { opacity: 1; }
+
+.timer {
+  font-size: clamp(64px, 17cqi, 168px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: rgba(242, 241, 238, 0.42);
+  font-variant-numeric: tabular-nums;
+}
+.timer.small { font-size: clamp(48px, 9cqi, 88px); color: rgba(242, 241, 238, 0.6); }
+.hint {
+  margin-top: 10px;
+  min-height: 1.4em;
+  font-size: clamp(13px, 1.6cqi, 15px);
+  font-weight: 500;
+}
+.hint.flash { animation: hint-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1); }
+@keyframes hint-in { from { opacity: 0; transform: translateY(6px) scale(0.96); } }
+.hint .ic-star { color: #fff; }
+.hint .ic-spike { color: var(--spike); }
+.hint .ic-bomb { color: var(--bomb); }
+
+.stats {
+  position: absolute;
+  bottom: 26px;
+  display: flex;
+  gap: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.stats span { transition: transform 0.2s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.stats .pop { transform: scale(1.35); }
+.stats .hurt { color: var(--bomb); transform: scale(1.35); }
+
+/* ---------- overlays ---------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 5, 6, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: default;
+  animation: fade-in 0.35s ease;
+}
+.overlay[hidden] { display: none; }
+@keyframes fade-in { from { opacity: 0; } }
+.panel-card {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+.panel-card .big { font-size: 28px; }
+.over-line { margin: 0; color: var(--ink-dim); }
+.over-line b { color: var(--ink); }
+.new-best { margin: 0; color: #facc15; font-weight: 600; font-size: 13px; letter-spacing: 0.04em; }
+.over-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
+.pill {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #2c2c34;
+  background: #16161b;
+  color: var(--ink);
+  cursor: pointer;
+}
+.pill.primary { background: #7c3aed; border-color: #7c3aed; }
+.pill:hover { filter: brightness(1.15); }
+.pill:focus-visible { outline: 2px solid #c9b3ff; outline-offset: 2px; }
+.bests {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 8px 32px;
+  margin: 14px 0 0;
+  text-align: left;
+}
+.bests dt { font-size: 12px; color: var(--ink-dim); }
+.bests dd { margin: 0; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+@container (max-width: 560px) {
+  .bd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bd-card:nth-child(n + 4):not(.bd-play) { display: none; }
+  .bd-card span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint.flash, .overlay { animation: none; }
+  .backdrop { transition: none; }
+}

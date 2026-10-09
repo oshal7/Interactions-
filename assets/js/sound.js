@@ -146,3 +146,76 @@ function makeNoise(ctx, seconds) {
 export function haptic(ms = 8) {
   try { navigator.vibrate?.(ms); } catch { /* not supported */ }
 }
+
+// ---------------------------------------------------------------
+// General-purpose game synth: tones, sweeps and filtered noise.
+// Every sound effect in a game can be built from these two calls.
+//
+//   const sfx = createSynth({ volume: 0.5 });
+//   sfx.tone({ freq: 660, to: 990, type: "triangle", dur: 0.12 });
+//   sfx.noise({ dur: 0.4, freq: 900, to: 80 });   // a boom
+// ---------------------------------------------------------------
+export function createSynth(options = {}) {
+  const settings = { enabled: true, volume: 0.5, ...options };
+  let ctx = null;
+  let master = null;
+  let noiseBuf = null;
+
+  function ensure() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.connect(ctx.destination);
+      noiseBuf = makeNoise(ctx, 1.5);
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    master.gain.value = settings.volume;
+    return ctx;
+  }
+
+  // Shape a gain node: quick attack, exponential fall to silence.
+  function envelope(t, peak, attack, dur) {
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.connect(master);
+    return g;
+  }
+
+  return {
+    settings,
+    set(patch) { Object.assign(settings, patch); },
+    // Call from a user gesture (e.g. the Play button) so later sounds aren't blocked.
+    unlock() { ensure(); },
+
+    tone({ freq = 440, to, type = "sine", dur = 0.15, gain = 0.5, attack = 0.005, delay = 0 } = {}) {
+      if (!settings.enabled || !ensure()) return;
+      const t = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t);
+      if (to) osc.frequency.exponentialRampToValueAtTime(to, t + dur);
+      osc.connect(envelope(t, gain, attack, dur));
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    },
+
+    noise({ dur = 0.2, freq = 1200, to, q = 0.8, filter = "lowpass", gain = 0.5, attack = 0.003, delay = 0 } = {}) {
+      if (!settings.enabled || !ensure()) return;
+      const t = ctx.currentTime + delay;
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuf;
+      const f = ctx.createBiquadFilter();
+      f.type = filter;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(freq, t);
+      if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      src.connect(f).connect(envelope(t, gain, attack, dur));
+      src.start(t);
+      src.stop(t + dur + 0.05);
+    },
+  };
+}

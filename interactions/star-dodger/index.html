@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Star Dodger · Interaction Lab</title>
+  <meta name="description" content="A tiny survival game hidden in a portfolio: steer a dot with your cursor, grab stars, dodge falling spikes and exploding bombs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="#how">How it's built</a>
+        <a href="../../">All patterns</a>
+      </nav>
+    </header>
+
+    <div class="lab-intro">
+      <div>
+        <p class="eyebrow">03 · Spotted on <a href="https://alyssax.com" rel="noopener">alyssax.com</a> (the “Play a game” card)</p>
+        <h1>Star dodger</h1>
+        <p class="muted">Click the “Play a game” card. Your dot follows the cursor (or your finger, or the arrow keys).
+          Grab ✦ stars, dodge the ▼ spikes and the ■ bombs, and see how long you last. Sound on!</p>
+      </div>
+    </div>
+
+    <main class="lab">
+      <!-- ======================= THE GAME ======================= -->
+      <section class="arena" id="arena" data-state="idle" aria-label="Star dodger game">
+        <!-- placeholder "portfolio" the game takes over -->
+        <div class="backdrop" aria-hidden="false">
+          <p class="bd-eyebrow">Selected things · placeholder</p>
+          <div class="bd-grid">
+            <article class="bd-card"><div class="bd-shot s1"></div><b>Placeholder app</b><span>A small tool that does one thing well.</span></article>
+            <article class="bd-card"><div class="bd-shot s2"></div><b>Side project</b><span>An experiment that got out of hand.</span></article>
+            <article class="bd-card"><div class="bd-shot s3"></div><b>Open-source lib</b><span>Tiny, typed and mostly documented.</span></article>
+            <article class="bd-card"><div class="bd-shot s4"></div><b>Browser extension</b><span>Automates a boring thing, politely.</span></article>
+            <article class="bd-card"><div class="bd-shot s5"></div><b>Design system</b><span>Tokens, components, and opinions.</span></article>
+            <button class="bd-card bd-play" id="playCard" type="button">
+              <div class="bd-shot play-shot" aria-hidden="true"><span class="pad">◉ ✦ ▼ ■</span></div>
+              <b>Play a game</b><span>Can you survive long enough to beat your best?</span>
+            </button>
+          </div>
+        </div>
+
+        <canvas id="canvas" aria-hidden="true"></canvas>
+
+        <!-- in-game HUD -->
+        <div class="hud" aria-hidden="true">
+          <div class="timer" id="timer">00:00</div>
+          <div class="hint" id="hint"></div>
+          <div class="stats"><span id="lives">♥ 3</span><span id="score">✦ 0</span></div>
+        </div>
+        <p class="sr-only" id="announce" aria-live="polite"></p>
+
+        <!-- pause + game over -->
+        <div class="overlay" id="pauseOverlay" hidden>
+          <div class="panel-card">
+            <b class="big">Paused</b>
+            <button class="pill primary" type="button" data-action="resume">▶ Resume</button>
+          </div>
+        </div>
+        <div class="overlay" id="overOverlay" hidden>
+          <div class="panel-card">
+            <div class="timer small" id="overTime">00:00</div>
+            <p class="over-line">Game over! You got <b id="overScore">✦ 0</b></p>
+            <p class="new-best" id="newBest" hidden>New personal best!</p>
+            <div class="over-btns">
+              <button class="pill primary" type="button" data-action="again">▶ Play again</button>
+              <button class="pill" type="button" data-action="home">↩ Back to the page</button>
+            </div>
+            <dl class="bests">
+              <div><dt>Your best time</dt><dd id="bestTime">00:00</dd></div>
+              <div><dt>Your best score</dt><dd id="bestScore">✦ 0</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================= PLAYGROUND ======================= -->
+      <aside class="panel" aria-label="Playground controls">
+        <fieldset>
+          <legend>Player</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-follow">Follow speed</label><output data-out="follow"></output></div>
+            <input id="c-follow" type="range" min="0.04" max="1" step="0.01" data-key="follow">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-lives">Lives</label><output data-out="lives"></output></div>
+            <input id="c-lives" type="range" min="1" max="9" step="1" data-key="lives">
+          </div>
+          <label class="row-inline"><span>Invincible (practice)</span><input type="checkbox" data-key="god"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Stars</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-stars">Stars on screen</label><output data-out="stars"></output></div>
+            <input id="c-stars" type="range" min="1" max="5" step="1" data-key="stars">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Spikes ▼</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-spikeStart">Start after</label><output data-out="spikeStart"></output></div>
+            <input id="c-spikeStart" type="range" min="0" max="30" step="1" data-key="spikeStart">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-spikeSpeed">Fall speed</label><output data-out="spikeSpeed"></output></div>
+            <input id="c-spikeSpeed" type="range" min="0.4" max="2.5" step="0.1" data-key="spikeSpeed">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-spikeRate">How many</label><output data-out="spikeRate"></output></div>
+            <input id="c-spikeRate" type="range" min="0.3" max="3" step="0.1" data-key="spikeRate">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Bombs ■</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-bombStart">Start after</label><output data-out="bombStart"></output></div>
+            <input id="c-bombStart" type="range" min="0" max="60" step="1" data-key="bombStart">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-bombSize">Blast size</label><output data-out="bombSize"></output></div>
+            <input id="c-bombSize" type="range" min="60" max="260" step="10" data-key="bombSize">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-fuse">Fuse</label><output data-out="fuse"></output></div>
+            <input id="c-fuse" type="range" min="0.5" max="3" step="0.1" data-key="fuse">
+          </div>
+          <label class="row-inline"><span>Show blast zone while ticking</span><input type="checkbox" data-key="showZone"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Feel</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-ramp">Gets harder over time</label><output data-out="ramp"></output></div>
+            <input id="c-ramp" type="range" min="0" max="3" step="0.1" data-key="ramp">
+          </div>
+          <label class="row-inline"><span>Screen shake on hit</span><input type="checkbox" data-key="shake"></label>
+          <label class="row-inline"><span>Show hitboxes</span><input type="checkbox" data-key="hitboxes"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sound</legend>
+          <label class="row-inline"><span>Sounds on</span><input type="checkbox" data-key="sound"></label>
+          <div class="row">
+            <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+            <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+          </div>
+          <div class="btns">
+            <button class="btn" type="button" data-sfx="star">✦ Star</button>
+            <button class="btn" type="button" data-sfx="hit">Hit</button>
+            <button class="btn" type="button" data-sfx="tick">Fuse tick</button>
+            <button class="btn" type="button" data-sfx="boom">Boom</button>
+            <button class="btn" type="button" data-sfx="phase">New phase</button>
+            <button class="btn" type="button" data-sfx="over">Game over</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <div class="btns">
+            <button class="btn primary" type="button" data-action="reset">Reset settings</button>
+            <button class="btn" type="button" data-action="clearBest">Clear best scores</button>
+          </div>
+          <p class="panel-note">Settings apply instantly, even mid-game.</p>
+        </fieldset>
+      </aside>
+    </main>
+
+    <!-- ======================= BREAKDOWN ======================= -->
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built</p>
+      <h2>A game loop <span class="serif">hiding in a portfolio.</span></h2>
+      <p class="muted">The original hides a full arcade game behind one card on a portfolio. Click it and the page dims, your cursor
+        becomes a crosshair, and things start falling. Under the hood it's the classic game recipe: a loop that runs every
+        frame, a list of things on screen, and a collision check between you and each of them.</p>
+
+      <h3 style="margin-top:40px">What I saw in the original (from a screen recording)</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th>Piece</th><th>Observation</th><th>How this rebuild does it</th></tr></thead>
+          <tbody>
+            <tr><td>Takeover</td><td>Clicking “Play a game” dims the whole portfolio but leaves it faintly visible behind the game.</td><td>The page stays in the DOM; a <code>data-state</code> switch fades it and hides the cursor.</td></tr>
+            <tr><td>Player</td><td>A white dot chases a crosshair cursor with a slight delay.</td><td>Crosshair at the pointer; the dot eases toward it each frame (<em>Follow speed</em>).</td></tr>
+            <tr><td>HUD</td><td>Huge grey timer in the middle, a one-line hint under it, ♥ lives and ✦ score below.</td><td>DOM text over a <code>&lt;canvas&gt;</code>; updated only when the numbers change.</td></tr>
+            <tr><td>Phases</td><td>0s “Get the star”, ~3s “Avoid the spikes”, ~10s “Watch out for the bombs”.</td><td>Same three phases (start times adjustable), plus a fourth “faster” phase.</td></tr>
+            <tr><td>Stars</td><td>White four-point sparkles at random spots; touching one adds a point and a new one appears.</td><td>Same, with a burst of particles and a chime that rises if you chain them quickly.</td></tr>
+            <tr><td>Spikes</td><td>Purple triangles with long fading trails, falling at different speeds.</td><td>Gradient trail + triangle head, speed and rate ramp up over time.</td></tr>
+            <tr><td>Bombs</td><td>A small red square appears, then expands into a big dark-red square that fades.</td><td>A pulsing fuse with ticks that speed up, then a blast that damages you only if you're inside it.</td></tr>
+            <tr><td>Game over</td><td>Final time, “You got ✦ 10”, Play again / Share, your best time and score, global bests.</td><td>Same, minus Share and the global scores (those need a server); your bests are saved in your browser.</td></tr>
+            <tr><td>Sound</td><td>None. The recording's audio is room noise.</td><td>A full synthesised set: star chime, hit thud, fuse tick, boom, phase sweep, game-over fall.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b><code>&lt;canvas&gt;</code></b><span>Dozens of moving things per frame are cheaper to paint than to move as DOM elements.</span></li>
+        <li><b><code>requestAnimationFrame</code> + delta time</b><span>Movement is speed × seconds since the last frame, so it's the same on 60Hz and 120Hz screens.</span></li>
+        <li><b>Entity lists</b><span>Plain arrays of stars, spikes, bombs and particles. Spawn = push, despawn = filter.</span></li>
+        <li><b>Circle and box collisions</b><span>Distance between centres for stars and spikes; “is the dot inside the square” for bombs.</span></li>
+        <li><b>Spawn timers + difficulty ramp</b><span>Each hazard has a countdown; the time between spawns shrinks as the clock climbs.</span></li>
+        <li><b>Easing follow</b><span>The dot moves a fraction of the way to the cursor each frame, which gives it that floaty chase.</span></li>
+        <li><b>Web Audio synth</b><span>Every sound is an oscillator or filtered noise with a pitch sweep and a volume envelope.</span></li>
+        <li><b>Device pixel ratio</b><span>The canvas is sized ×2 or ×3 on retina screens so shapes stay sharp.</span></li>
+        <li><b><code>localStorage</code></b><span>Remembers your best time and score on this device.</span></li>
+        <li><b>Page Visibility API</b><span>Switching tabs pauses the game instead of killing you while you're away.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>The game loop</h3>
+            <p>Every frame does the same three things: work out how much time passed, <em>update</em> everything by that
+              amount, then <em>draw</em> everything. Capping <code>dt</code> stops a huge jump if the tab hiccups.</p>
+<pre><code>function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);  // seconds
+  last = now;
+  update(dt);   // move things, spawn things, check hits
+  draw();       // clear the canvas, paint everything
+  if (state === "playing") requestAnimationFrame(frame);
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The player chases the cursor</h3>
+            <p>The crosshair is exactly at the pointer; the dot closes a fraction of the gap each frame. Lower
+              <em>Follow speed</em> = more delay = harder game. The <code>1 − (1 − k)^(dt·60)</code> form keeps the chase
+              identical at any frame rate.</p>
+<pre><code>const k = 1 - Math.pow(1 - config.follow, dt * 60);
+player.x += (target.x - player.x) * k;
+player.y += (target.y - player.y) * k;</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Spawning, with a difficulty ramp</h3>
+            <p>Each hazard has a countdown. When it hits zero we spawn one and reset the countdown to a gap that gets
+              shorter as time goes on. Speeds scale the same way.</p>
+<pre><code>const level = 1 + (time / 30) * config.ramp;
+spikeTimer -= dt;
+if (time &gt;= config.spikeStart &amp;&amp; spikeTimer &lt;= 0) {
+  spikes.push({ x: rand(0, W), y: -40, speed: 220 * config.spikeSpeed * level });
+  spikeTimer = 0.9 / (config.spikeRate * level);
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Collisions are just distance checks</h3>
+            <p>Stars and spike heads are circles: you're touching if the distance between centres is less than the two
+              radii added together. A bomb blast is a square: you're hit if your centre is inside it (padded by your radius).
+              After a hit you get a moment of invincibility (the dot blinks) so one spike can't take all your lives.</p>
+<pre><code>const touching = (a, b) =&gt; Math.hypot(a.x - b.x, a.y - b.y) &lt; a.r + b.r;
+
+const inBlast = Math.abs(p.x - bomb.x) &lt; bomb.size / 2 + p.r &amp;&amp;
+                Math.abs(p.y - bomb.y) &lt; bomb.size / 2 + p.r;</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Drawing a spike: gradient trail + triangle</h3>
+            <p>The trail is a thin rectangle filled with a vertical gradient from transparent to purple, which reads as speed. The
+              head is a three-point path. Everything is redrawn from scratch each frame after <code>clearRect</code>.</p>
+<pre><code>const g = ctx.createLinearGradient(0, s.y - s.len, 0, s.y);
+g.addColorStop(0, "rgba(168,85,247,0)");
+g.addColorStop(1, "rgba(168,85,247,.9)");
+ctx.fillStyle = g;
+ctx.fillRect(s.x - 1.5, s.y - s.len, 3, s.len);</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Sound design from two building blocks</h3>
+            <p><code>tone()</code> is an oscillator with an optional pitch slide; <code>noise()</code> is filtered static with an
+              optional filter sweep. Every effect is a recipe of those:</p>
+<pre><code>star:  tone(880 → 1320, triangle, 0.12s) + a fifth above, 60ms later
+       (pitch rises a semitone per star if you chain them within 2.5s)
+hit:   noise(lowpass 600 → 80Hz, 0.3s) + tone(160 → 50Hz, sine)
+tick:  tone(1400Hz, square, 0.03s)   (ticks speed up as the fuse burns)
+boom:  noise(lowpass 1200 → 60Hz, 0.7s) + tone(110 → 30Hz, sine)
+phase: tone(300 → 900Hz, sine, 0.25s)
+over:  tone(440 → 110Hz, triangle, 0.8s) + noise tail</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Fair on every device</h3>
+            <p>Touch works by dragging anywhere (the dot follows your finger without scrolling the page), and the arrow keys/WASD move
+              the crosshair for keyboard players. Switching tabs or pressing Esc pauses. With
+              <code>prefers-reduced-motion</code>, the screen shake and particle bursts are turned off.</p>
+          </div>
+        </section>
+      </div>
+
+      <h3 style="margin-top:56px">Other ways to build it</h3>
+      <ul class="ingredients">
+        <li><b>Kaboom / Phaser</b><span>Game frameworks with sprites, collisions and scenes built in. Great once a game has many rules.</span></li>
+        <li><b>PixiJS</b><span>A fast WebGL renderer if you want hundreds of particles and glow effects.</span></li>
+        <li><b>Supabase / Firebase</b><span>Add the original's global high scores with a tiny database table.</span></li>
+        <li><b>Howler.js</b><span>Play recorded sound files instead of synthesising them.</span></li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      Pattern spotted on <a href="https://alyssax.com" rel="noopener">alyssax.com</a>. Rebuilt from scratch with placeholder content for learning.
+      · <a href="../../">Back to the library</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
