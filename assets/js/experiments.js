@@ -26,6 +26,17 @@ export const EXPERIMENTS = [
     accent: "#9fb6cc",
   },
 
+  {
+    slug: "wind-chimes",
+    title: "Wind chimes",
+    summary: "A tuned wind chime in WebGL with real pendulum physics. Brush through the tubes, pull one and let go, or let the breeze play it. Every hit is synthesised from the physics of a vibrating tube.",
+    status: "built",
+    versions: [{ v: "v1", path: "v1/", note: "pendulums, impulses, free-free bar synthesis" }],
+    tags: ["three.js / WebGL", "Verlet pendulums", "Capsule collisions", "Modal synthesis", "Pentatonic tunings"],
+    source: null,
+    accent: "#bdbdbd",
+  },
+
   // ---- queued from tol.is (names as listed on the site) ----
   ...[
     ["Stormy clouds", "https://tol.is/"],

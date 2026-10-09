@@ -29,6 +29,7 @@ To add one:
    - `assets/js/stage.js`: `createStage()` for a full-bleed canvas with retina sizing, pointer velocity and a dt loop that pauses off-screen, plus `lerp`, `clamp`, `rand`, `damp`.
    - `assets/js/sound.js`: `createSynth()` for tones and noise.
    - `assets/css/experiment.css`: the dark full-screen layout, overlay chrome and floating panel.
+   - `assets/vendor/three/`: three.js for WebGL pieces. Add `<script type="importmap">{ "imports": { "three": "…/assets/vendor/three/three.module.min.js" } }</script>` and `import * as THREE from "three"`.
 3. In `assets/js/experiments.js`, add an entry with `status: "built"` and a `slug`. A queued entry with the same title gets ticked off automatically.
 
 **Versions.** A piece can have versions, each a frozen snapshot in its own folder (`experiments/paper-plane/v1/`,
@@ -73,6 +74,7 @@ assets/css/experiment.css      full-screen layout for experiments
 assets/js/sound.js             Web Audio synths: UI clicks + game tones/noise (no audio files)
 assets/js/stage.js             canvas stage for experiments (dpr, pointer, loop)
 assets/js/experiments.js       the experiments list + tol.is queue
+assets/vendor/three/           three.js r170 (MIT), vendored for WebGL experiments; pages load it via an import map
 interactions/
   press-to-feel/               01 · playground + breakdown
   messy-desktop/               02 · draggable windows (windows.js holds the mock apps)
@@ -84,5 +86,7 @@ experiments/
   paper-plane/                 index.html → latest version
     v1/                        toy: knock, gust, throw
     v2/                        drift: meditative, follows your finger, generative music
+  wind-chimes/                 index.html → latest version
+    v1/                        WebGL chime: physics.js (pendulums + collisions), audio.js (tube synthesis), main.js (three.js scene)
 .github/workflows/pages.yml    deploys the site to GitHub Pages
 ```

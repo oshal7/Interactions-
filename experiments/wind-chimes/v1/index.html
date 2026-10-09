@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wind Chimes v1 · Experiments</title>
+  <meta name="description" content="A tuned wind chime in WebGL with real pendulum physics and collisions. Brush it with your cursor, pull a tube and let go, or let the breeze play it.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../assets/css/site.css">
+  <link rel="stylesheet" href="../../../assets/css/experiment.css">
+  <link rel="stylesheet" href="style.css">
+  <!-- three.js is vendored in assets/vendor/three; the import map lets modules say `import … from "three"` -->
+  <script type="importmap">
+    { "imports": { "three": "../../../assets/vendor/three/three.module.min.js" } }
+  </script>
+</head>
+<body class="exp">
+  <!-- ======================= THE PIECE ======================= -->
+  <section class="exp-stage" id="stage" aria-label="A wind chime. Move your cursor through the tubes to brush them, press and drag a tube to pull it, or press keys 1 to 8 to nudge a tube.">
+    <div class="labels" id="labels" aria-hidden="true" hidden></div>
+    <div class="exp-chrome">
+      <div class="exp-top">
+        <div class="exp-nav">
+          <a href="../../">← Experiments</a>
+          <nav class="exp-versions" aria-label="Versions"><a href="./" aria-current="page">v1</a></nav>
+        </div>
+        <div class="exp-actions">
+          <button class="exp-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound">♪<span class="lbl"> Sound</span></button>
+          <button class="exp-btn" id="tuneBtn" type="button" aria-expanded="false" aria-controls="panel">Tune</button>
+        </div>
+      </div>
+      <div></div>
+      <div class="exp-bottom">
+        <div class="exp-title"><b>Wind chimes</b><span id="tuningName">Pentatonic</span></div>
+        <span class="exp-hint">Brush through the tubes · press and pull one, then let go</span>
+        <a href="#how">How it's built ↓</a>
+      </div>
+    </div>
+
+    <button class="exp-start" id="begin" type="button">
+      <span class="begin-inner"><span class="begin-dot" aria-hidden="true"></span>Touch to listen<small>best with headphones</small></span>
+    </button>
+
+    <aside class="panel" id="panel" aria-label="Settings" hidden>
+      <fieldset>
+        <legend>Chime</legend>
+        <div class="row">
+          <label class="row-head" for="c-tuning">Tuning</label>
+          <select id="c-tuning" data-key="tuning">
+            <option value="pentatonic">Pentatonic · nature</option>
+            <option value="zen">Zen · Japanese In scale</option>
+            <option value="celtic">Celtic · minor pentatonic</option>
+            <option value="healing">Healing · open major 9th</option>
+            <option value="tenor">Tenor · deep and slow</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-count">Tubes</label><output data-out="count"></output></div>
+          <input id="c-count" type="range" min="3" max="8" step="1" data-key="count">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-transpose">Pitch (semitones)</label><output data-out="transpose"></output></div>
+          <input id="c-transpose" type="range" min="-12" max="12" step="1" data-key="transpose">
+        </div>
+        <label class="row-inline"><span>Show notes</span><input type="checkbox" data-key="notes"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Physics</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-breeze">Breeze</label><output data-out="breeze"></output></div>
+          <input id="c-breeze" type="range" min="0" max="1" step="0.01" data-key="breeze">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-air">Air resistance</label><output data-out="air"></output></div>
+          <input id="c-air" type="range" min="0.02" max="0.8" step="0.01" data-key="air">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-bounce">Bounce</label><output data-out="bounce"></output></div>
+          <input id="c-bounce" type="range" min="0.2" max="0.9" step="0.01" data-key="bounce">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-hand">Hand size</label><output data-out="hand"></output></div>
+          <input id="c-hand" type="range" min="0.01" max="0.08" step="0.005" data-key="hand">
+        </div>
+        <label class="row-inline"><span>Show contacts</span><input type="checkbox" data-key="contacts"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sound</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+          <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-ringLength">Ring length</label><output data-out="ringLength"></output></div>
+          <input id="c-ringLength" type="range" min="0.3" max="2.5" step="0.1" data-key="ringLength">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-brightness">Brightness</label><output data-out="brightness"></output></div>
+          <input id="c-brightness" type="range" min="0" max="1.5" step="0.05" data-key="brightness">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Look</legend>
+        <label class="row-inline"><span>Night</span><input type="checkbox" data-key="night"></label>
+      </fieldset>
+
+      <fieldset>
+        <div class="btns">
+          <button class="btn" type="button" data-action="gust">Gust</button>
+          <button class="btn" type="button" data-action="strike">Strike each</button>
+          <button class="btn" type="button" data-action="still">Still</button>
+          <button class="btn primary" type="button" data-action="reset">Reset</button>
+        </div>
+        <p class="panel-note">Keys 1–8 nudge a tube · Space sends a gust.</p>
+      </fieldset>
+    </aside>
+  </section>
+
+  <!-- ======================= BREAKDOWN ======================= -->
+  <div class="wrap">
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built · v1</p>
+      <h2>Pendulums, <span class="serif">and the sound of metal.</span></h2>
+      <p class="muted">A wind chime is a handful of pendulums that keep bumping into each other. Everything here is simulated:
+        the tubes swing under gravity, hit each other and the striker with real impulses, and every hit is synthesised
+        from the physics of a vibrating tube. How hard, where and what hit what all change the sound. The 3D is drawn
+        with three.js (WebGL); the physics and the audio are our own code.</p>
+
+      <div class="callout">No recording for this one. It's built from your brief and from how real tuned chimes work. The
+        default tuning is a calm pentatonic set, like the ones well-known tuned chimes (Nature's Melody, Corinthian Bells…) are built around.</div>
+
+      <h3 style="margin-top:40px">The anatomy</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th>Part</th><th>In a real chime</th><th>In the simulation</th></tr></thead>
+          <tbody>
+            <tr><td>Top disc</td><td>Holds everything; hangs from a hook.</td><td>Fixed. Each tube's string is pinned to a point on its rim.</td></tr>
+            <tr><td>Tubes</td><td>Aluminium, length sets the note. Each hangs on a short cord.</td><td>A pendulum (string + tube in one line) with mass ∝ length. Length from the note: <code>L ∝ 1/√f</code>.</td></tr>
+            <tr><td>Striker</td><td>A wooden puck on the centre cord, at the tubes' sweet spot.</td><td>A pendulum; collides as a horizontal disc at its own height.</td></tr>
+            <tr><td>Sail</td><td>A paddle below the striker that catches the wind.</td><td>Wind force on the sail acts on the striker through the lever of its longer string.</td></tr>
+            <tr><td>Your hand</td><td>Brushing the tubes.</td><td>A thin capsule along the view ray under your cursor, moving with it; pushes but never rings.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b>three.js (WebGL)</b><span>Metal tubes lit by an environment map, soft shadows on a back wall, thin line strings.</span></li>
+        <li><b>Verlet integration</b><span>Store the position and the previous one; velocity is the difference. Constraints become simple projections.</span></li>
+        <li><b>Distance constraints</b><span>After each step, put the particle back at its string length from the pivot. That's a pendulum.</span></li>
+        <li><b>Substeps</b><span>10 physics steps per frame, so fast swings don't tunnel through each other.</span></li>
+        <li><b>Segment–segment distance</b><span>Tubes are capsules; the closest points between two line segments give contact, normal and depth.</span></li>
+        <li><b>Impulses with lever arms</b><span>A hit near the bottom of a tube moves it more than one near the top, as with a real pendulum.</span></li>
+        <li><b>Restitution + air drag</b><span>How bouncy hits are, and how slowly swinging fades. Low drag = long, smooth settling.</span></li>
+        <li><b>Free-free bar acoustics</b><span>Overtones at 1, 2.756, 5.404, 8.933× the fundamental: the bell-like, un-musical partials of a hanging tube.</span></li>
+        <li><b>Velocity → loudness and brightness</b><span>Harder hits are louder and richer; brushes are soft and pure.</span></li>
+        <li><b>Convolution reverb + panning</b><span>Each hit comes from where the tube is, in a soft room.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>A tube is a pendulum</h3>
+            <p>Each body is one particle (its centre of mass) and a fixed pivot. Verlet integration moves it by its own momentum plus
+              gravity; then a constraint snaps it back to the right distance from the pivot. That's all it takes to swing in 3D,
+              in any direction, including circles.</p>
+<pre><code>const v = sub(b.X, b.Xp);                    // implied velocity
+b.Xp = b.X;
+b.X = add(b.X, add(mul(v, drag), mul(gravity, dt * dt)));
+b.X = add(b.P, mul(norm(sub(b.X, b.P)), b.Lc));   // stay on the string</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Finding where two tubes touch</h3>
+            <p>A tube is a line segment with a radius (a capsule). The closest points between two segments tell us if they overlap
+              (distance &lt; r₁ + r₂), where (the contact point), and which way to push (the normal). The striker is a flat puck,
+              so for it we compare positions at the puck's height.</p>
+<pre><code>const c = closestSegSeg(a0, a1, b0, b1);   // Ericson, Real-Time Collision Detection
+const dist = len(sub(c.pa, c.pb));
+if (dist &lt; A.r + B.r) resolve(A, B, normal, depth);</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Bouncing apart, the right amount</h3>
+            <p>Each body rotates around its pivot, so a point at height <code>h</code> moves <code>h/L</code> as fast as the centre.
+              That ratio also sets how “heavy” the tube feels at the contact point. With it we compute one impulse that sends both
+              tubes apart with the chosen bounciness. Because velocity in Verlet is <code>X − Xp</code>, applying the impulse just
+              means shifting <code>Xp</code>.</p>
+<pre><code>const rA = hA / A.Lc, wA = rA * rA / A.m;      // inverse mass at the contact
+const vn = dot(sub(vA, vB), n);                // closing speed
+if (vn &lt; 0) {
+  const j = -(1 + bounce) * vn / (wA + wB);
+  A.Xp = sub(A.Xp, mul(n, j * rA / A.m * dt));  // Δv = j·r/m
+  B.Xp = add(B.Xp, mul(n, j * rB / B.m * dt));
+  ring(A, -vn); ring(B, -vn);                    // the sound gets the same speed
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Coming back slowly</h3>
+            <p>Nothing pulls the tubes back to rest except gravity and a little air drag (<code>air ≈ 0.12/s</code>). So after a hit
+              they swing out, come back, maybe touch again, and settle over many seconds, the way real chimes do. Raise
+              <em>Air resistance</em> to calm them faster, lower <em>Bounce</em> for duller, heavier collisions.</p>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The sound of a hanging tube</h3>
+            <p>A tube that's free at both ends (a “free-free bar”) doesn't vibrate like a string. Its overtones sit at
+              2.756×, 5.404× and 8.933× the fundamental. Those inharmonic partials are the shimmering, bell-like quality of chimes.
+              Each hit starts four sine partials with an instant attack; higher ones fade much faster. A tiny bandpassed noise
+              burst adds the metallic “tick” (duller when the wooden striker hits). A second, 0.1%-detuned fundamental creates slow
+              beating, and a gentle tremolo stands in for the tube turning on its cord. Lower notes ring longer.</p>
+<pre><code>const MODES = [1, 2.756, 5.404, 8.933];
+const DECAY = [1, 0.42, 0.18, 0.08];          // × ring time (≈ 7.5 s at A4)
+amp = min(1, speed / 0.9) ** 1.15 * 0.22;     // harder hit = louder
+brightness grows with speed and hardness;      // and richer</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Tuning</h3>
+            <p>Tube length follows the note: for a free-free bar, frequency ∝ 1/L², so the length is ∝ 1/√f. The
+              presets are calm scales with no clashing notes: a nature-style major pentatonic, the Japanese In scale, a minor
+              pentatonic, an open major-9th “healing” chord and a deep tenor set. <em>Pitch</em> transposes all of them.</p>
+          </div>
+        </section>
+      </div>
+
+      <h3 style="margin-top:56px">Other ways to build it</h3>
+      <ul class="ingredients">
+        <li><b>Rapier / cannon-es</b><span>Full rigid-body engines with hinge joints and capsules. More general, heavier to load.</span></li>
+        <li><b>Recorded samples</b><span>Record each tube once and play with velocity-based volume. Realistic, but every tuning needs new recordings.</span></li>
+        <li><b>Modal synthesis with resonant filters</b><span>Excite a bank of narrow bandpass filters with a click; very efficient for many voices.</span></li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      An original experiment in the spirit of the physical pieces on <a href="https://tol.is" rel="noopener">tol.is</a>.
+      three.js r170 (MIT) is bundled in <code>assets/vendor/three</code>. · <a href="../../">All experiments</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
