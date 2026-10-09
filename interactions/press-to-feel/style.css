@@ -1,0 +1,395 @@
+/* ---------------------------------------------------------------
+   01 · Press to feel
+   All live-tunable values come in as CSS custom properties set
+   from main.js, so the CSS only describes *how* things move.
+   --------------------------------------------------------------- */
+
+.lab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  align-items: start;
+  padding-bottom: 8px;
+}
+
+/* =============== STAGE =============== */
+.stage {
+  /* defaults; main.js overwrites these from the controls */
+  --bg-a: #121216;
+  --bg-b: #3b3bff;
+  --ink-a: #f4f3ef;
+  --ink-b: #ffffff;
+  --cap-a: #3b3bff;
+  --cap-b: #f2c94c;
+  --cap-ink-a: #ffffff;
+  --cap-ink-b: #1a1a1a;
+  --dur: 650ms;
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --rx: 18deg;
+  --ry: -12deg;
+  --rz: -6deg;
+  --x: 50%;
+  --y: 68%;
+  --scale: 1;
+  --depth: 9px;
+
+  position: relative;
+  height: clamp(540px, 80vh, 780px);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: inline-size;
+  color: var(--ink);
+  transition: color var(--dur) var(--ease);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.stage[data-state="a"] { --ink: var(--ink-a); --cap: var(--cap-a); --cap-ink: var(--cap-ink-a); }
+.stage[data-state="b"] { --ink: var(--ink-b); --cap: var(--cap-b); --cap-ink: var(--cap-ink-b); }
+
+.stage-bg,
+.stage-reveal {
+  position: absolute;
+  inset: 0;
+}
+.stage-bg { z-index: 0; background: var(--bg-a); }
+.stage-reveal {
+  z-index: 1;
+  clip-path: circle(0px at 50% 50%);
+  will-change: clip-path;
+}
+
+/* ---- headline: both versions stacked, crossfaded with blur ---- */
+.stage-copy {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 auto 0;
+  padding: clamp(28px, 8cqi, 72px) 20px 0;
+  text-align: center;
+  pointer-events: none;
+}
+.stage-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin: 0 0 clamp(12px, 2.5cqi, 22px);
+}
+.stage-eyebrow::before { content: "● "; font-size: 8px; vertical-align: 2px; }
+
+.headline {
+  display: grid;
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(34px, 8.6cqi, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+.hl {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  transition:
+    opacity calc(var(--dur) * 0.7) var(--ease),
+    filter calc(var(--dur) * 0.7) var(--ease),
+    transform calc(var(--dur) * 0.7) var(--ease);
+}
+.hl em {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: 1.08em;
+}
+.stage[data-state="a"] .hl-b,
+.stage[data-state="b"] .hl-a {
+  opacity: 0;
+  filter: blur(14px);
+  transform: scale(0.97);
+}
+
+/* ---- the key ---- */
+.key-anchor {
+  position: absolute;
+  z-index: 3;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+}
+
+.key {
+  --w: calc(clamp(150px, 27cqi, 240px) * var(--scale));
+  position: relative;
+  display: block;
+  width: var(--w);
+  aspect-ratio: 1.5;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cap-ink);
+  font: inherit;
+  cursor: pointer;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
+  /* overshooting curve = the slight "settle" when the key re-angles */
+  transition: transform calc(var(--dur) * 1.1) cubic-bezier(0.34, 1.4, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.key:focus-visible { outline: none; }
+.key:focus-visible .key-cap { outline: 3px solid color-mix(in oklab, var(--ink) 70%, transparent); outline-offset: 4px; }
+
+.key-base,
+.key-cap {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--w) * 0.1);
+}
+
+/* the darker "switch housing" the cap sinks into */
+.key-base {
+  background: color-mix(in oklab, var(--cap) 45%, #050508);
+  transform: translateY(var(--depth));
+  box-shadow: 0 calc(var(--depth) + 16px) 36px -6px rgba(0, 0, 0, 0.5);
+  transition: background-color var(--dur) var(--ease), box-shadow 110ms ease-out;
+}
+
+.key-cap {
+  display: grid;
+  overflow: hidden;
+  background: var(--cap);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition:
+    transform 110ms cubic-bezier(0.2, 0.9, 0.3, 1.3),
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+/* soft sheen on top of the cap */
+.key-cap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.28), transparent 55%);
+  pointer-events: none;
+}
+
+/* PRESSED: cap sinks most of the way into the base */
+.key.is-down .key-cap { transform: translateY(calc(var(--depth) * 0.8)); transition-duration: 60ms, var(--dur), var(--dur); }
+.key.is-down .key-base { box-shadow: 0 calc(var(--depth) + 6px) 18px -6px rgba(0, 0, 0, 0.5); }
+
+/* two faces stacked; the active state's face is visible */
+.face {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10% 11%;
+  text-align: left;
+  transition: opacity calc(var(--dur) * 0.5) var(--ease), transform calc(var(--dur) * 0.5) var(--ease);
+}
+.stage[data-state="a"] .face-b,
+.stage[data-state="b"] .face-a { opacity: 0; transform: translateY(6px); }
+
+.face-label {
+  font-size: calc(var(--w) * 0.105);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+.face-meta {
+  position: absolute;
+  left: 11%;
+  bottom: 11%;
+  font-size: calc(var(--w) * 0.032);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.face-spark,
+.face-dot,
+.face-arrow { position: absolute; opacity: 0.85; }
+.face-spark { top: 9%; left: 9%; font-size: calc(var(--w) * 0.06); line-height: 1; }
+.face-dot { top: 11%; right: 9%; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.face-arrow { right: 9%; bottom: 9%; font-size: calc(var(--w) * 0.07); line-height: 1; }
+
+/* ---- handwritten hint next to the key ---- */
+.hint {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-left: 22px;
+  display: grid;
+  white-space: nowrap;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(16px, 2.2cqi, 22px);
+  transform: translateY(-10%) rotate(-6deg);
+  pointer-events: none;
+}
+.hint svg {
+  position: absolute;
+  right: 100%;
+  top: -60%;
+  width: 22px;
+  height: 30px;
+  margin-right: 2px;
+  opacity: 0.8;
+}
+.hint span { grid-area: 1 / 1; transition: opacity calc(var(--dur) * 0.5) var(--ease); }
+.stage[data-state="a"] .hint-b,
+.stage[data-state="b"] .hint-a { opacity: 0; }
+
+/* hint flips to the left side when the key is near the right edge */
+.key-anchor.hint-left .hint {
+  left: auto;
+  right: 100%;
+  margin: 0 22px 0 0;
+  transform: translateY(-10%) rotate(6deg);
+}
+.key-anchor.hint-left .hint svg { right: auto; left: 100%; margin: 0 0 0 2px; transform: scaleX(-1); }
+.key-anchor.no-hint .hint { display: none; }
+
+/* narrow stage: no room beside the key, so the hint sits underneath */
+@container (max-width: 600px) {
+  .hint,
+  .key-anchor.hint-left .hint {
+    top: 100%;
+    left: 50%;
+    right: auto;
+    margin: calc(var(--depth) + 22px) 0 0;
+    transform: translateX(-50%) rotate(-4deg);
+    justify-items: center;
+  }
+  .hint svg,
+  .key-anchor.hint-left .hint svg { display: none; }
+}
+
+.stage-foot {
+  position: absolute;
+  z-index: 2;
+  left: 20px;
+  right: 20px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* =============== CONTROL PANEL =============== */
+.panel {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 16px 16px;
+  font-size: 13px;
+}
+.panel fieldset {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+  padding: 14px 0;
+  display: grid;
+  gap: 10px;
+}
+.panel fieldset:last-of-type { border-bottom: 0; }
+.panel legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.row { display: grid; gap: 4px; }
+.row-head { display: flex; justify-content: space-between; gap: 8px; color: var(--ink-2); }
+.row-head output { font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+.row-inline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ink-2); }
+
+.panel input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.panel select,
+.panel input[type="text"] {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.panel input[type="color"] {
+  width: 36px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--ink-3); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+.pos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 100px;
+}
+.pos-grid button {
+  aspect-ratio: 1.4;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  cursor: pointer;
+  padding: 0;
+}
+.pos-grid button:hover { border-color: var(--ink-3); }
+.pos-grid button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+
+.panel-note { color: var(--ink-3); font-size: 12px; margin: 0; }
+
+.lab-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 20px 0 20px;
+}
+.lab-intro h1 { margin: 0; font-size: clamp(30px, 4.5vw, 48px); letter-spacing: -0.035em; line-height: 1; font-weight: 600; }
+.lab-intro p { margin: 6px 0 0; max-width: 60ch; }
+
+@media (max-width: 960px) {
+  .lab { grid-template-columns: minmax(0, 1fr); }
+  .panel { position: static; max-height: none; }
+  .stage { height: clamp(500px, 75vh, 680px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage, .key, .key-cap, .key-base, .hl, .face, .hint span { transition-duration: 1ms !important; }
+}

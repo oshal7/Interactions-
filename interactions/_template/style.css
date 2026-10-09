@@ -1,0 +1,28 @@
+/* Styles for this pattern only. Shared chrome lives in assets/css/site.css. */
+
+.demo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(420px, 70vh, 680px);
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.demo-target {
+  font: inherit;
+  font-size: 18px;
+  padding: 14px 22px;
+  border-radius: 14px;
+  border: 0;
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: transform 120ms ease-out;
+}
+.demo-target:active { transform: scale(0.96); }
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-target { transition: none; }
+}

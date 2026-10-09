@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Press to Feel · Interaction Lab</title>
+  <meta name="description" content="A 3D keycap that clicks like a mechanical switch and floods the scene with colour from where you pressed. Playground and breakdown.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="#how">How it's built</a>
+        <a href="../../">All patterns</a>
+      </nav>
+    </header>
+
+    <div class="lab-intro">
+      <div>
+        <p class="eyebrow">01 · Spotted on <a href="https://shashankmahajan.in" rel="noopener">shashankmahajan.in</a></p>
+        <h1>Press to feel</h1>
+        <p class="muted">Press the key (click, tap, or focus it and hit Space). Then use the panel to change its angle, position, timing and sound. Turn your sound on.</p>
+      </div>
+    </div>
+
+    <main class="lab">
+      <!-- ======================= THE INTERACTION ======================= -->
+      <section class="stage" id="stage" data-state="a" aria-label="Interactive demo">
+        <div class="stage-bg" id="stageBg"></div>
+        <div class="stage-reveal" id="stageReveal" aria-hidden="true"></div>
+
+        <div class="stage-copy">
+          <p class="stage-eyebrow" data-copy="eyebrow">Placeholder · Lab 01</p>
+          <h2 class="headline" aria-live="polite">
+            <span class="hl hl-a"><span data-copy="headA1">Small moves.</span><em data-copy="headA2">Big moods.</em></span>
+            <span class="hl hl-b" aria-hidden="true"><span data-copy="headB1">Tiny touch.</span><em data-copy="headB2">Huge grin.</em></span>
+          </h2>
+        </div>
+
+        <div class="key-anchor" id="keyAnchor">
+          <button class="key" id="key" type="button" aria-pressed="false">
+            <span class="key-base" aria-hidden="true"></span>
+            <span class="key-cap">
+              <span class="face face-a">
+                <span class="face-spark" aria-hidden="true">✳</span>
+                <span class="face-dot" aria-hidden="true"></span>
+                <span class="face-label" data-copy="labelA">Press this, please.</span>
+                <span class="face-meta" aria-hidden="true">Placeholder key</span>
+                <span class="face-arrow" aria-hidden="true">→</span>
+              </span>
+              <span class="face face-b" aria-hidden="true">
+                <span class="face-spark" aria-hidden="true">✳</span>
+                <span class="face-dot" aria-hidden="true"></span>
+                <span class="face-label" data-copy="labelB">There it is.</span>
+                <span class="face-meta" aria-hidden="true">Placeholder key</span>
+                <span class="face-arrow" aria-hidden="true">→</span>
+              </span>
+            </span>
+          </button>
+          <span class="hint" aria-hidden="true">
+            <svg viewBox="0 0 22 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M19 28 C 6 26, 3 16, 8 4" /><path d="M3 8 L8 3 L12 8" />
+            </svg>
+            <span class="hint-a" data-copy="hintA">Go ahead, try it.</span>
+            <span class="hint-b" data-copy="hintB">Another?</span>
+          </span>
+        </div>
+
+        <div class="stage-foot" aria-hidden="true">
+          <span>● Placeholder content</span>
+          <span id="pressCount">0 presses</span>
+        </div>
+      </section>
+
+      <!-- ======================= PLAYGROUND ======================= -->
+      <aside class="panel" aria-label="Playground controls">
+        <fieldset>
+          <legend>Angle</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-rz">Slant (rotate Z)</label><output data-out="rz"></output></div>
+            <input id="c-rz" type="range" min="-35" max="35" step="1" data-key="rz">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-rx">Tip back (rotate X)</label><output data-out="rx"></output></div>
+            <input id="c-rx" type="range" min="-40" max="40" step="1" data-key="rx">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-ry">Turn (rotate Y)</label><output data-out="ry"></output></div>
+            <input id="c-ry" type="range" min="-40" max="40" step="1" data-key="ry">
+          </div>
+          <div class="row">
+            <label for="c-afterPress" class="row-head">After a press, the angle…</label>
+            <select id="c-afterPress" data-key="afterPress">
+              <option value="straighten">Straightens out</option>
+              <option value="mirror">Mirrors (slants the other way)</option>
+              <option value="random">Jumps to a random angle</option>
+              <option value="keep">Stays the same</option>
+            </select>
+          </div>
+          <div class="btns">
+            <button class="btn" type="button" data-action="randomAngle">Random angle</button>
+            <button class="btn" type="button" data-action="flatAngle">Flat</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Position &amp; size</legend>
+          <div class="row-inline">
+            <span>Quick place</span>
+            <div class="pos-grid" id="posGrid" role="group" aria-label="Quick position"></div>
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-x">Horizontal</label><output data-out="x"></output></div>
+            <input id="c-x" type="range" min="12" max="88" step="1" data-key="x">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-y">Vertical</label><output data-out="y"></output></div>
+            <input id="c-y" type="range" min="20" max="86" step="1" data-key="y">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-scale">Size</label><output data-out="scale"></output></div>
+            <input id="c-scale" type="range" min="0.6" max="1.5" step="0.05" data-key="scale">
+          </div>
+          <label class="row-inline"><span>Show hand-written hint</span><input type="checkbox" data-key="showHint"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Feel</legend>
+          <div class="row">
+            <div class="row-head"><label for="c-depth">Key travel</label><output data-out="depth"></output></div>
+            <input id="c-depth" type="range" min="2" max="18" step="1" data-key="depth">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-dur">Reveal duration</label><output data-out="dur"></output></div>
+            <input id="c-dur" type="range" min="150" max="1600" step="10" data-key="dur">
+          </div>
+          <div class="row">
+            <label for="c-ease" class="row-head">Reveal easing</label>
+            <select id="c-ease" data-key="ease">
+              <option value="cubic-bezier(0.65, 0, 0.35, 1)">Ease in-out (smooth)</option>
+              <option value="cubic-bezier(0.16, 1, 0.3, 1)">Expo out (snappy)</option>
+              <option value="cubic-bezier(0.7, 0, 0.84, 0)">Expo in (slow start)</option>
+              <option value="linear">Linear (robotic)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="c-origin" class="row-head">Colour spreads from…</label>
+            <select id="c-origin" data-key="origin">
+              <option value="key">Centre of the key</option>
+              <option value="pointer">Exactly where you pressed</option>
+              <option value="corner">Top-left corner</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sound</legend>
+          <label class="row-inline"><span>Sound on</span><input type="checkbox" data-key="sound"></label>
+          <div class="row">
+            <label for="c-profile" class="row-head">Switch type</label>
+            <select id="c-profile" data-key="profile">
+              <option value="clicky">Clicky (like the reference)</option>
+              <option value="thocky">Thocky (deeper)</option>
+              <option value="pop">Soft pop</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-pitch">Pitch</label><output data-out="pitch"></output></div>
+            <input id="c-pitch" type="range" min="600" max="6000" step="50" data-key="pitch">
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+            <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+          </div>
+          <label class="row-inline"><span>Vibrate on press (Android)</span><input type="checkbox" data-key="haptics"></label>
+          <div class="btns"><button class="btn" type="button" data-action="previewSound">▶ Hear it</button></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Colours</legend>
+          <div class="swatches">
+            <label class="row-inline"><span>Scene A</span><input type="color" data-key="bgA"></label>
+            <label class="row-inline"><span>Scene B</span><input type="color" data-key="bgB"></label>
+            <label class="row-inline"><span>Key A</span><input type="color" data-key="capA"></label>
+            <label class="row-inline"><span>Key B</span><input type="color" data-key="capB"></label>
+          </div>
+          <div class="btns"><button class="btn" type="button" data-action="shufflePalette">Shuffle palette</button></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Copy (placeholder text)</legend>
+          <p class="panel-note">Use " / " to split a headline over two lines.</p>
+          <div class="row"><label class="row-head" for="t-headA">Headline A</label><input id="t-headA" type="text" data-text="headA"></div>
+          <div class="row"><label class="row-head" for="t-headB">Headline B</label><input id="t-headB" type="text" data-text="headB"></div>
+          <div class="row"><label class="row-head" for="t-labelA">Key label A</label><input id="t-labelA" type="text" data-text="labelA"></div>
+          <div class="row"><label class="row-head" for="t-labelB">Key label B</label><input id="t-labelB" type="text" data-text="labelB"></div>
+        </fieldset>
+
+        <fieldset>
+          <div class="btns">
+            <button class="btn primary" type="button" data-action="copyJson">Copy settings</button>
+            <button class="btn" type="button" data-action="reset">Reset</button>
+          </div>
+          <p class="panel-note" id="panelStatus" role="status"></p>
+        </fieldset>
+      </aside>
+    </main>
+
+    <!-- ======================= BREAKDOWN ======================= -->
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built</p>
+      <h2>One button, <span class="serif">five small tricks.</span></h2>
+      <p class="muted">It looks like one effect, but it's really five separate pieces timed to happen together: a 3D key, a press,
+        a colour that spreads out from the key, a blurred text swap, and a click sound. None of them needs a library.
+        Everything below is in <code>main.js</code> and <code>style.css</code> in this folder.</p>
+
+      <h3 style="margin-top:40px">What I saw in the original (from a screen recording)</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th>Piece</th><th>Observation</th><th>How this rebuild does it</th></tr></thead>
+          <tbody>
+            <tr><td>States</td><td>Two states swap every press: dark scene + blue key ⇄ blue scene + gold key.</td><td><code>data-state="a|b"</code> on the stage; CSS reads it.</td></tr>
+            <tr><td>Key</td><td>Thick 3D keycap with a darker base, slanted about −5° at rest and straight after a press.</td><td>Two stacked layers + <code>perspective()</code> <code>rotateX/Y/Z</code>.</td></tr>
+            <tr><td>Colour change</td><td>A circle of the new colour starts behind the key and grows past the screen edges.</td><td><code>clip-path: circle()</code> animated with the Web Animations API.</td></tr>
+            <tr><td>Headline</td><td>Mid-transition both headlines are visible and blurred.</td><td>Both stacked in one grid cell, crossfaded with <code>opacity</code> + <code>filter: blur()</code>.</td></tr>
+            <tr><td>Sound</td><td>Two very short ticks ~120 ms apart per press (down + up). Peak energy ≈ 3.3 kHz with a weaker ~6.7 kHz overtone; each tick dies out in about 20 ms. The second tick is slightly louder.</td><td>Synthesised live: band-passed noise burst on <code>pointerdown</code> and on <code>pointerup</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b>HTML <code>&lt;button&gt;</code></b><span>Gives you keyboard support, focus and screen-reader semantics for free.</span></li>
+        <li><b>CSS custom properties</b><span>Every value you can tune (angles, colours, timing) is a variable, so JS just sets numbers.</span></li>
+        <li><b>CSS 3D transforms</b><span><code>perspective</code>, <code>rotateX/Y/Z</code> make a flat div read as a physical key.</span></li>
+        <li><b><code>clip-path: circle()</code></b><span>Masks a full-screen colour layer to a growing circle, so the colour spreads out.</span></li>
+        <li><b>Web Animations API</b><span><code>element.animate()</code> runs the reveal and tells you when it's done.</span></li>
+        <li><b>CSS filter + grid stacking</b><span>Two headlines in one grid cell, blurred in and out.</span></li>
+        <li><b>Web Audio API</b><span>Generates the click from noise; no audio files, tunable live.</span></li>
+        <li><b>Pointer + keyboard events</b><span>Separate “down” and “up” so the key sinks and clicks at the right moments.</span></li>
+        <li><b>Container queries</b><span><code>cqi</code> units size the type to the stage, not the window.</span></li>
+        <li><b><code>prefers-reduced-motion</code></b><span>Removes the movement for people who've asked for less of it.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>A two-state machine</h3>
+            <p>Everything hangs off one attribute. JS flips it; CSS decides what each state looks like. That keeps the
+              logic tiny and lets every part (key colour, headline, hint) react to the same switch.</p>
+<pre><code>&lt;section class="stage" data-state="a"&gt;…&lt;/section&gt;
+
+.stage[data-state="a"] { --cap: var(--cap-a); --ink: var(--ink-a); }
+.stage[data-state="b"] { --cap: var(--cap-b); --ink: var(--ink-b); }
+
+stage.dataset.state = state === "a" ? "b" : "a";</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The keycap: two layers and some perspective</h3>
+            <p>The key is a <code>.key-base</code> (darker, pushed down by <code>--depth</code>) with a <code>.key-cap</code> sitting
+              on top. The base colour is mixed from the cap colour, so one colour picker updates both. The whole button is
+              tilted in 3D; the slant you control in the panel is just <code>--rz</code>.</p>
+<pre><code>.key {
+  transform: perspective(900px)
+             rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
+  /* overshoot curve = a little wobble when it re-angles */
+  transition: transform 700ms cubic-bezier(.34, 1.4, .64, 1);
+}
+.key-base { transform: translateY(var(--depth));
+            background: color-mix(in oklab, var(--cap) 45%, #050508); }</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The press: down and up are separate moments</h3>
+            <p>A real key reacts when your finger lands, not when you let go. So the cap sinks on <code>pointerdown</code> (with a
+              very fast 60 ms transition) and the state flips on <code>pointerup</code>. Pointer capture means
+              dragging off the key cancels cleanly instead of leaving it stuck down.</p>
+<pre><code>key.addEventListener("pointerdown", (e) =&gt; {
+  key.setPointerCapture(e.pointerId);
+  key.classList.add("is-down");     // cap sinks
+  sfx.press();                      // first tick
+});
+key.addEventListener("pointerup", (e) =&gt; {
+  key.classList.remove("is-down");  // cap springs back
+  sfx.release();                    // second tick
+  toggle(e);                        // flip the state
+});
+
+.key.is-down .key-cap { transform: translateY(calc(var(--depth) * .8)); }</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The colour spread: a growing circle mask</h3>
+            <p>A full-size layer painted in the <em>next</em> colour sits above the background, masked to a circle of
+              radius 0 at the key's centre. We animate the radius to the distance from that point to the
+              <em>farthest corner</em> (<code>Math.hypot</code>), so it always covers the stage exactly. When it finishes,
+              the colour is copied to the base layer and the mask resets, ready for the next press.</p>
+<pre><code>const R = Math.hypot(Math.max(x, w - x), Math.max(y, h - y));
+reveal.style.background = nextColor;
+const anim = reveal.animate(
+  [{ clipPath: `circle(0px at ${x}px ${y}px)` },
+   { clipPath: `circle(${R}px at ${x}px ${y}px)` }],
+  { duration, easing, fill: "forwards" }
+);
+anim.onfinish = () =&gt; { bg.style.background = nextColor; anim.cancel(); };</code></pre>
+            <p class="muted">If you press again mid-animation, the running reveal is finished instantly first, so fast
+              presses never leave the scene in a half-state.</p>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The headline swap: stack, blur, fade</h3>
+            <p>Both headlines are always in the DOM, stacked in the same grid cell so they occupy the same spot. The hidden one
+              gets <code>opacity: 0</code>, a 14px blur and a slight shrink. Swapping state transitions all three, which is
+              why you briefly see both, out of focus, while they cross.</p>
+<pre><code>.headline { display: grid; }
+.hl { grid-area: 1 / 1; transition: opacity .45s, filter .45s, transform .45s; }
+.stage[data-state="a"] .hl-b,
+.stage[data-state="b"] .hl-a { opacity: 0; filter: blur(14px); transform: scale(.97); }</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>The sound: a synthesised switch</h3>
+            <p>A mechanical switch click is mostly a burst of noise with energy around one frequency. So we take 80 ms of
+              white noise, push it through a <code>bandpass</code> filter at the chosen pitch (3.3 kHz to match the
+              reference), and shape its volume to spike in 1 ms and die in ~18 ms. A tiny random playback-rate wobble makes
+              repeat clicks sound less robotic. “Thocky” and “Soft pop” add a low sine wave for body. All of it lives
+              in <code>assets/js/sound.js</code> so other patterns can reuse it.</p>
+<pre><code>const band = ctx.createBiquadFilter();
+band.type = "bandpass"; band.frequency.value = 3300; band.Q.value = 3.5;
+
+amp.gain.setValueAtTime(0.0001, t);
+amp.gain.exponentialRampToValueAtTime(volume, t + 0.001);  // attack
+amp.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);  // decay
+
+noise.connect(band).connect(amp).connect(ctx.destination);</code></pre>
+            <div class="callout">Browsers block audio until the user interacts with the page, so the <code>AudioContext</code>
+              is created on the first press. Since that press <em>is</em> a gesture, it just works, with no “enable sound” prompt needed.</div>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Keyboard, screen readers and reduced motion</h3>
+            <p>Space and Enter mirror the pointer: <code>keydown</code> sinks the key and plays the first tick, <code>keyup</code>
+              releases it and flips the state (held-key auto-repeat is ignored). <code>aria-pressed</code> reflects the
+              state, the headline sits in an <code>aria-live</code> region, and with <code>prefers-reduced-motion</code> the
+              reveal becomes an instant swap.</p>
+          </div>
+        </section>
+      </div>
+
+      <h3 style="margin-top:56px">Other ways to build it</h3>
+      <ul class="ingredients">
+        <li><b>View Transitions API</b><span><code>document.startViewTransition()</code> + a <code>clip-path</code> keyframe on <code>::view-transition-new(root)</code> gives the same circle reveal for a whole page or theme.</span></li>
+        <li><b>Recorded samples</b><span>Record a real switch (down + up as two files) and play them with Web Audio or Howler.js. More realistic, but adds downloads.</span></li>
+        <li><b>GSAP / Motion</b><span>Handy if you sequence many steps, but nothing here needs more than CSS transitions and <code>element.animate()</code>.</span></li>
+      </ul>
+    </article>
+
+    <footer class="footer">
+      Pattern spotted on <a href="https://shashankmahajan.in" rel="noopener">shashankmahajan.in</a>. Rebuilt from scratch with placeholder copy for learning.
+      · <a href="../../">Back to the library</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

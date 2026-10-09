@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interaction Lab</title>
+  <meta name="description" content="A personal library of interaction patterns spotted across the web, rebuilt from scratch to understand how they work.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <style>
+    .hero { padding: 56px 0 40px; }
+    .hero h1 {
+      font-size: clamp(44px, 8vw, 104px);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      font-weight: 600;
+      margin: 0 0 20px;
+    }
+    .hero h1 .serif { letter-spacing: -0.02em; }
+    .hero p { max-width: 56ch; font-size: 18px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 24px 0 80px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--ink-3); }
+    .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    .thumb {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: var(--a);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .thumb::before {
+      /* the "reveal" circle, half-way through */
+      content: "";
+      position: absolute;
+      width: 70%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #111114;
+      transform: translate(40%, 30%);
+    }
+    .mini-key {
+      position: relative;
+      width: 38%;
+      aspect-ratio: 1.55;
+      border-radius: 12px;
+      background: var(--b);
+      box-shadow: 0 7px 0 color-mix(in oklab, var(--b) 60%, black), 0 18px 30px rgba(0,0,0,.35);
+      transform: rotate(-7deg);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s;
+    }
+    .card:hover .mini-key {
+      transform: rotate(0deg) translateY(5px);
+      box-shadow: 0 2px 0 color-mix(in oklab, var(--b) 60%, black), 0 8px 18px rgba(0,0,0,.35);
+    }
+    .num {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.8);
+    }
+
+    .card-body { padding: 18px 18px 20px; display: grid; gap: 10px; flex: 1; }
+    .card-body h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+    .card-body p { margin: 0; color: var(--ink-2); font-size: 15px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+    .spotted { font-size: 13px; color: var(--ink-3); }
+
+    .card.add {
+      border-style: dashed;
+      background: transparent;
+      justify-content: center;
+      padding: 28px;
+      min-height: 280px;
+    }
+    .card.add h2 { margin: 0 0 8px; font-size: 22px; letter-spacing: -0.02em; }
+    .card.add ol { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+    .card.add code { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="./"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="#library">Library</a>
+        <a href="https://github.com/oshal7/Interactions-">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">A personal library · rebuilt to understand</p>
+      <h1>Small details,<br><span class="serif">taken apart.</span></h1>
+      <p class="muted">Interaction patterns I've spotted across the web, rebuilt from scratch with placeholder content.
+        Each one has a playground to poke at and a breakdown of every ingredient it took to make it.</p>
+    </section>
+
+    <section id="library" class="grid" aria-label="Interaction library"></section>
+
+    <footer class="footer">
+      Patterns are credited to where they were spotted. Copy and code here are original placeholders.
+    </footer>
+  </div>
+
+  <script type="module">
+    import { INTERACTIONS } from "./assets/js/registry.js";
+
+    const grid = document.getElementById("library");
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    grid.innerHTML = INTERACTIONS.map((it) => `
+      <a class="card" href="interactions/${esc(it.slug)}/" style="--a:${esc(it.accent)};--b:${esc(it.accent2)}">
+        <div class="thumb" aria-hidden="true">
+          <span class="num">${esc(it.number)}</span>
+          <span class="mini-key"></span>
+        </div>
+        <div class="card-body">
+          <h2>${esc(it.title)}</h2>
+          <p>${esc(it.summary)}</p>
+          ${it.spottedOn ? `<span class="spotted">Spotted on ${esc(it.spottedOn.label)}</span>` : ""}
+          <div class="chips">${it.ingredients.map((i) => `<span class="chip">${esc(i)}</span>`).join("")}</div>
+        </div>
+      </a>
+    `).join("") + `
+      <div class="card add">
+        <h2>Add your own</h2>
+        <ol>
+          <li>Copy <code>interactions/_template</code> to a new folder</li>
+          <li>Build the pattern in its <code>main.js</code> + <code>style.css</code></li>
+          <li>Fill in the “How it's built” section</li>
+          <li>Add an entry to <code>assets/js/registry.js</code></li>
+        </ol>
+      </div>`;
+  </script>
+</body>
+</html>
