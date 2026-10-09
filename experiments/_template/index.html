@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TODO: rename -->
+  <title>Template · Experiments</title>
+  <meta name="description" content="Starter for a full-screen experiment: canvas stage, sound toggle, settings panel and breakdown.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+  <link rel="stylesheet" href="../../assets/css/experiment.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="exp">
+  <!-- ======================= THE PIECE ======================= -->
+  <section class="exp-stage" id="stage" aria-label="Interactive piece: tap or drag to drop ripples">
+    <!-- the canvas is inserted here by createStage() -->
+    <div class="exp-chrome">
+      <div class="exp-top">
+        <a href="../">← Experiments</a>
+        <div class="exp-actions">
+          <button class="exp-btn" id="soundBtn" type="button" aria-pressed="true">♪ Sound</button>
+          <button class="exp-btn" id="tuneBtn" type="button" aria-expanded="false" aria-controls="panel">Tune</button>
+        </div>
+      </div>
+      <div></div>
+      <div class="exp-bottom">
+        <div class="exp-title"><b>Ripples</b><span>Template · starter piece</span></div>
+        <span class="exp-hint">Tap or drag on the water</span>
+        <a href="#how">How it's built ↓</a>
+      </div>
+    </div>
+
+    <aside class="panel" id="panel" aria-label="Settings" hidden>
+      <fieldset>
+        <legend>Water</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-speed">Ripple speed</label><output data-out="speed"></output></div>
+          <input id="c-speed" type="range" min="40" max="400" step="10" data-key="speed">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-life">Ripple life</label><output data-out="life"></output></div>
+          <input id="c-life" type="range" min="0.5" max="5" step="0.1" data-key="life">
+        </div>
+        <label class="row-inline"><span>Rain by itself</span><input type="checkbox" data-key="rain"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Sound</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+          <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+        </div>
+      </fieldset>
+    </aside>
+  </section>
+
+  <!-- ======================= BREAKDOWN ======================= -->
+  <div class="wrap">
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built</p>
+      <h2>Short title, <span class="serif">serif twist.</span></h2>
+      <p class="muted">Two or three sentences on what the piece is really made of. For this starter: a canvas, a list of
+        expanding circles, and a pentatonic note for each drop.</p>
+
+      <h3 style="margin-top:40px">What I saw in the original</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th>Piece</th><th>Observation</th><th>How this rebuild does it</th></tr></thead>
+          <tbody><tr><td>…</td><td>…</td><td>…</td></tr></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b><code>createStage()</code></b><span>Canvas, retina sizing, pointer with velocity, and a loop that pauses off-screen.</span></li>
+        <li><b><code>createSynth()</code></b><span>Tones and noise for sound effects and simple music.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>Step title</h3>
+            <p>What this step does and why.</p>
+<pre><code>// the key lines</code></pre>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <footer class="footer">
+      Inspired by a piece on <a href="https://tol.is" rel="noopener">tol.is</a>. Rebuilt from scratch for learning.
+      · <a href="../">All experiments</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

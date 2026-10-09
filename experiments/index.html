@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experiments · Interaction Lab</title>
+  <meta name="description" content="Physical, generative and musical web experiments rebuilt from scratch to understand how they work.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="../assets/css/experiment.css">
+  <style>
+    .hero { padding: 56px 0 32px; }
+    .hero h1 {
+      font-size: clamp(44px, 8vw, 104px);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      font-weight: 600;
+      margin: 0 0 20px;
+    }
+    .hero p { max-width: 60ch; font-size: 18px; }
+
+    h2.section {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      font-weight: 500;
+      margin: 48px 0 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .built { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .exp-card {
+      display: grid;
+      gap: 8px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      text-decoration: none;
+      transition: border-color .2s, transform .25s cubic-bezier(.2,.8,.2,1);
+    }
+    .exp-card:hover { border-color: var(--ink-3); transform: translateY(-2px); }
+    .exp-card .swatch { height: 120px; border-radius: 12px; background: radial-gradient(circle at 30% 30%, var(--a, #555), #0b0b0e 70%); }
+    .exp-card b { font-size: 20px; letter-spacing: -0.02em; }
+    .exp-card p { margin: 0; color: var(--ink-2); font-size: 14px; }
+    .empty {
+      padding: 28px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--ink-2);
+    }
+    .empty b { color: var(--ink); }
+
+    .queue {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      column-gap: 24px;
+      border-top: 1px solid var(--line);
+    }
+    .queue li {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 12px 4px;
+      border-bottom: 1px solid var(--line);
+      font-size: 15px;
+    }
+    .queue .n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); min-width: 22px; }
+    .queue a { color: var(--ink-2); font-size: 12px; margin-left: auto; text-decoration: none; }
+    .queue a:hover { color: var(--ink); }
+    .queue li.done { color: var(--ink-3); text-decoration: line-through; }
+  </style>
+</head>
+<body class="exp">
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="../">UI interactions</a>
+        <a href="./" aria-current="page">Experiments</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Experiments · physical, generative, musical</p>
+      <h1>Real things,<br><span class="serif">made of pixels.</span></h1>
+      <p class="muted">Clay, water, paper, weather, machines. Pieces that react to your cursor like real objects, with
+        sound. Each one is rebuilt from scratch from a screen recording, with a breakdown of the physics, maths and
+        audio behind it.</p>
+    </section>
+
+    <h2 class="section"><span>Rebuilt</span><span id="builtCount"></span></h2>
+    <div class="built" id="built"></div>
+
+    <h2 class="section"><span>Queue · from <a href="https://tol.is" rel="noopener">tol.is</a></span><span id="queueCount"></span></h2>
+    <ul class="queue" id="queue"></ul>
+
+    <footer class="footer" style="margin-top:64px">
+      The queue lists pieces by Tolis C on tol.is, as inspiration. Every rebuild here is written from scratch from a recording, with credit.
+    </footer>
+  </div>
+
+  <script type="module">
+    import { EXPERIMENTS } from "../assets/js/experiments.js";
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    const built = EXPERIMENTS.filter((e) => e.status === "built");
+    const builtTitles = new Set(built.map((e) => e.title.toLowerCase()));
+    const queued = EXPERIMENTS.filter((e) => e.status === "queued");
+
+    document.getElementById("built").innerHTML = built.length
+      ? built.map((e) => `
+          <a class="exp-card" href="${esc(e.slug)}/" style="--a:${esc(e.accent ?? "#666")}">
+            <div class="swatch" aria-hidden="true"></div>
+            <b>${esc(e.title)}</b>
+            <p>${esc(e.summary ?? "")}</p>
+            <div class="btns">${(e.tags ?? []).map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>
+          </a>`).join("")
+      : `<div class="empty"><b>Nothing rebuilt yet.</b> Send a screen recording of any piece in the queue and it lands here,
+          with a playground and a breakdown. New pieces start from <code>experiments/_template</code>.</div>`;
+
+    document.getElementById("queue").innerHTML = queued.map((e, i) => `
+      <li class="${builtTitles.has(e.title.toLowerCase()) ? "done" : ""}">
+        <span class="n">${String(i + 1).padStart(2, "0")}</span>${esc(e.title)}
+        ${e.source ? `<a href="${esc(e.source.url)}" rel="noopener">${esc(e.source.label)} ↗</a>` : ""}
+      </li>`).join("");
+
+    document.getElementById("builtCount").textContent = `${built.length}`;
+    const left = queued.filter((e) => !builtTitles.has(e.title.toLowerCase())).length;
+    document.getElementById("queueCount").textContent = `${left} to go`;
+  </script>
+</body>
+</html>

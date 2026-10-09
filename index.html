@@ -141,6 +141,22 @@
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
     .spotted { font-size: 13px; color: var(--ink-3); }
 
+    .exp-teaser {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 64px;
+      padding: 28px;
+      border-radius: 20px;
+      background: #0b0b0e;
+      color: #efeee9;
+      text-decoration: none;
+      transition: transform .25s cubic-bezier(.2,.8,.2,1);
+    }
+    .exp-teaser:hover { transform: translateY(-2px); }
+    .exp-teaser b { font-size: clamp(24px, 3.4vw, 36px); letter-spacing: -0.03em; font-weight: 600; }
+    .exp-teaser .muted { color: #a9a8b2; }
+    .exp-teaser .eyebrow { color: #6f6e78; margin: 0; }
+
     .card.add {
       border-style: dashed;
       background: transparent;
@@ -158,7 +174,8 @@
     <header class="topbar">
       <a class="brand" href="./"><span class="brand-mark">i</span> Interaction Lab</a>
       <nav>
-        <a href="#library">Library</a>
+        <a href="#library">UI interactions</a>
+        <a href="experiments/">Experiments</a>
         <a href="https://github.com/oshal7/Interactions-">GitHub</a>
       </nav>
     </header>
@@ -170,7 +187,14 @@
         Each one has a playground to poke at and a breakdown of every ingredient it took to make it.</p>
     </section>
 
+    <h2 class="eyebrow" style="margin:0">UI interactions</h2>
     <section id="library" class="grid" aria-label="Interaction library"></section>
+
+    <a class="exp-teaser" href="experiments/">
+      <span class="eyebrow">Also in the lab</span>
+      <b>Experiments <span class="serif">· physical, generative, musical</span></b>
+      <span class="muted">Full-screen pieces that behave like real things: clay, water, paper, weather, machines. With sound. →</span>
+    </a>
 
     <footer class="footer">
       Patterns are credited to where they were spotted. Copy and code here are original placeholders.

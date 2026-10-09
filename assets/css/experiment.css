@@ -1,0 +1,136 @@
+/* ---------------------------------------------------------------
+   Experiments: full-screen canvas pieces.
+   Load after site.css. Pages using this are always dark.
+   --------------------------------------------------------------- */
+
+.exp {
+  --bg: #08080a;
+  --surface: #121216;
+  --surface-2: #1b1b21;
+  --ink: #efeee9;
+  --ink-2: #a9a8b2;
+  --ink-3: #6f6e78;
+  --line: #26262d;
+  --accent: #e8e6df;
+  --accent-ink: #08080a;
+  --code-bg: #0e0e12;
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ---------- the stage: fills the first screen ---------- */
+.exp-stage {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 480px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--stage-bg, #08080a);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* chrome sits on top of the canvas, never blocks it except where it has buttons */
+.exp-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 16px clamp(16px, 3vw, 28px);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chrome-ink, rgba(239, 238, 233, 0.7));
+}
+.exp-chrome a,
+.exp-chrome button { pointer-events: auto; }
+
+.exp-top,
+.exp-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.exp-top a { text-decoration: none; }
+.exp-top a:hover { color: var(--ink); }
+.exp-title b { display: block; font-size: 13px; color: var(--ink); letter-spacing: 0.12em; }
+.exp-title span { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.exp-hint { text-transform: none; letter-spacing: 0; font-size: 13px; opacity: 0.8; }
+
+.exp-actions { display: flex; gap: 8px; }
+.exp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 10, 12, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.exp-btn:hover { border-color: rgba(255, 255, 255, 0.35); }
+.exp-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.exp-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ---------- floating settings panel (reuses .panel rows from site.css) ---------- */
+.exp-stage .panel {
+  position: absolute;
+  z-index: 3;
+  top: 60px;
+  right: clamp(16px, 3vw, 28px);
+  width: min(300px, calc(100% - 32px));
+  max-height: calc(100% - 120px);
+  background: rgba(14, 14, 18, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.1);
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.exp-stage .panel[hidden] {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+}
+
+/* "tap to start sound" veil, used by pieces that need audio before anything else */
+.exp-start {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 8, 10, 0.55);
+  cursor: pointer;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border: 0;
+  width: 100%;
+  font-family: inherit;
+}
+.exp-start[hidden] { display: none; }
+
+/* ---------- explainer below the stage ---------- */
+.exp .explainer { padding-top: 64px; }
+.exp .footer { border-color: var(--line); }
+
+@media (max-width: 640px) {
+  .exp-hint { display: none; }
+  .exp-stage .panel { top: auto; bottom: 64px; max-height: 55%; }
+}
