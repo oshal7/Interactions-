@@ -1,0 +1,52 @@
+name: Paper Sky · macOS build
+
+# Builds the screen saver + menu-bar app on a real Mac runner.
+# Every push that touches apps/paper-sky uploads the zips as a workflow artifact.
+# Run it by hand with "release" ticked to publish them as a GitHub Release.
+on:
+  push:
+    paths:
+      - "apps/paper-sky/**"
+      - ".github/workflows/paper-sky-macos.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number, e.g. 1.0.0"
+        required: true
+        default: "1.0.0"
+      release:
+        description: "Publish a GitHub Release with the zips"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        env:
+          VERSION: ${{ inputs.version || '1.0.0' }}
+          BUILD_NO: ${{ github.run_number }}
+        run: bash apps/paper-sky/macos/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PaperSky-macOS
+          path: apps/paper-sky/macos/dist/*.zip
+          if-no-files-found: error
+
+      - name: Publish release
+        if: ${{ inputs.release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "paper-sky-v$VERSION" apps/paper-sky/macos/dist/*.zip \
+            --title "Paper Sky $VERSION" \
+            --notes-file apps/paper-sky/RELEASE_NOTES.md \
+            --target "$GITHUB_SHA"

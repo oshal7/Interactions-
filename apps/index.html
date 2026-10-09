@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apps · Interaction Lab</title>
+  <meta name="description" content="Experiments from the lab, packaged as installable apps.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="../assets/css/experiment.css">
+  <style>
+    .hero { padding: 56px 0 32px; }
+    .hero h1 { font-size: clamp(44px, 8vw, 104px); line-height: 0.95; letter-spacing: -0.045em; font-weight: 600; margin: 0 0 20px; }
+    .apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding-bottom: 80px; }
+    .app { display: grid; gap: 10px; padding: 18px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; transition: border-color .2s, transform .25s cubic-bezier(.2,.8,.2,1); }
+    .app:hover { border-color: var(--ink-3); transform: translateY(-2px); }
+    .app .art { aspect-ratio: 16 / 10; border-radius: 12px; background: linear-gradient(180deg, #232a45 0%, #4b4a6b 45%, #b48a8f 80%, #e7b99c 100%); position: relative; overflow: hidden; }
+    .app .art::after { content: "✈︎"; position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-18deg); font-size: 46px; color: #fff4ec; opacity: .9; }
+    .app b { font-size: 22px; letter-spacing: -0.02em; }
+    .app p { margin: 0; color: var(--ink-2); font-size: 15px; }
+  </style>
+</head>
+<body class="exp">
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="../">UI interactions</a>
+        <a href="../experiments/">Experiments</a>
+        <a href="./" aria-current="page">Apps</a>
+      </nav>
+    </header>
+    <section class="hero">
+      <p class="eyebrow">Apps · things you can install</p>
+      <h1>From the lab,<br><span class="serif">onto your desk.</span></h1>
+      <p class="muted" style="max-width:56ch;font-size:18px">Experiments packaged as real apps, built on GitHub.</p>
+    </section>
+    <section class="apps">
+      <a class="app" href="paper-sky/">
+        <div class="art" aria-hidden="true"></div>
+        <b>Paper Sky</b>
+        <p>macOS screen saver, live wallpaper and ambient mode: paper planes that drift around and follow your cursor, with sound.</p>
+        <div class="btns"><span class="chip">macOS 12+</span><span class="chip">Screen saver</span><span class="chip">Menu-bar app</span><span class="chip">Swift + WKWebView</span></div>
+      </a>
+    </section>
+  </div>
+</body>
+</html>

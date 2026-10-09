@@ -37,6 +37,18 @@ To add one:
 the entry in `experiments.js` lists them under `versions` (newest first). To start a new version, copy the latest
 folder to the next number, then change only the copy.
 
+## Apps
+
+`apps/` holds experiments packaged as installable apps.
+
+- **Paper Sky** (`apps/paper-sky/`): the Paper plane v2 sky as a macOS **screen saver**, a **live wallpaper** that follows the
+  cursor, and a full-screen interactive **ambient mode**, from a menu-bar app.
+  - `web/`: the sky as one standalone page (classic script, URL options, `window.paperSky` API for native hosts).
+  - `macos/Saver/`: `ScreenSaverView` + `WKWebView`. `macos/App/`: the menu-bar app. `macos/build.sh`: `swiftc` → universal, ad-hoc signed bundles.
+  - `.github/workflows/paper-sky-macos.yml` builds it on a macOS runner on every push to `apps/paper-sky/**` (zips as an artifact).
+    Run the workflow by hand with **release** ticked to publish a GitHub Release.
+  - It does not replace the macOS lock screen and never touches your password: locking uses the real screen saver lock.
+
 ## Run it locally
 
 ES modules need a server; opening the file directly won't load them.
@@ -80,6 +92,9 @@ interactions/
   messy-desktop/               02 · draggable windows (windows.js holds the mock apps)
   star-dodger/                 03 · canvas mini-game with synthesised sound
   _template/                   copy this to start a new pattern
+apps/
+  index.html                   apps hub
+  paper-sky/                   landing page, web/ (standalone sky), macos/ (screen saver + menu-bar app + build.sh)
 experiments/
   index.html                   experiments hub (rebuilt + queue)
   _template/                   working starter piece ("Ripples")
@@ -89,4 +104,5 @@ experiments/
   wind-chimes/                 index.html → latest version
     v1/                        WebGL chime: physics.js (pendulums + collisions), audio.js (tube synthesis), main.js (three.js scene)
 .github/workflows/pages.yml    deploys the site to GitHub Pages
+.github/workflows/paper-sky-macos.yml  builds Paper Sky for macOS
 ```
