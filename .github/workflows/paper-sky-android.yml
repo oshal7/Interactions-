@@ -1,0 +1,66 @@
+name: Paper Sky · Android build
+
+# Builds the Android live-wallpaper app (APK) on a Linux runner with the Android SDK.
+# Every push that touches apps/paper-sky/android uploads the APK as a workflow artifact.
+# Run it by hand with "release" ticked to publish it as a GitHub Release.
+on:
+  push:
+    paths:
+      - "apps/paper-sky/android/**"
+      - ".github/workflows/paper-sky-android.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number, e.g. 1.0.0"
+        required: true
+        default: "1.0.0"
+      release:
+        description: "Publish a GitHub Release with the APK"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build APK
+        env:
+          VERSION: ${{ inputs.version || '1.0.0' }}
+          BUILD_NO: ${{ github.run_number }}
+        working-directory: apps/paper-sky/android
+        run: |
+          gradle assembleRelease --no-daemon --stacktrace
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/PaperSky-Android-$VERSION.apk"
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PaperSky-Android
+          path: apps/paper-sky/android/dist/*.apk
+          if-no-files-found: error
+
+      - name: Publish release
+        if: ${{ inputs.release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "paper-sky-android-v$VERSION" apps/paper-sky/android/dist/*.apk \
+            --title "Paper Sky for Android $VERSION" \
+            --notes-file apps/paper-sky/RELEASE_NOTES_ANDROID.md \
+            --target "$GITHUB_SHA"

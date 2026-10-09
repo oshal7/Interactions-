@@ -6,7 +6,8 @@ name: Paper Sky · macOS build
 on:
   push:
     paths:
-      - "apps/paper-sky/**"
+      - "apps/paper-sky/macos/**"
+      - "apps/paper-sky/web/**"
       - ".github/workflows/paper-sky-macos.yml"
   workflow_dispatch:
     inputs:

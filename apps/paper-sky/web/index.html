@@ -2,11 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <title>Paper Sky</title>
+  <!-- installable on phones: Add to Home Screen (iPhone) / Install app (Android) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#232a45">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Paper Sky">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
   <!-- Standalone: no external files, no network, no modules. Runs in a tab or inside the macOS app/screen saver. -->
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; background: #232a45; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #232a45; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
     html[data-mood="dusk"] body { background: linear-gradient(180deg, #232a45 0%, #4b4a6b 45%, #b48a8f 80%, #e7b99c 100%); }
     html[data-mood="day"] body { background: linear-gradient(180deg, #a9c3dc 0%, #d5e1ea 55%, #f4ece0 100%); }
     html[data-mood="night"] body { background: linear-gradient(180deg, #03050b 0%, #0a1020 60%, #141a2c 100%); }
@@ -15,7 +24,7 @@
 
     /* lock-screen style clock (screen saver) */
     #clock {
-      position: fixed; left: 0; right: 0; top: 11vh; text-align: center; pointer-events: none;
+      position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 9vh); text-align: center; pointer-events: none;
       font-family: -apple-system, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
       color: rgba(255, 248, 242, 0.92); text-shadow: 0 1px 20px rgba(0, 0, 0, 0.15);
     }
@@ -31,12 +40,37 @@
     #begin.fading { opacity: 0; pointer-events: none; }
     #begin[hidden] { display: none; }
     #begin small { display: block; margin-top: 10px; letter-spacing: 0.06em; text-transform: none; opacity: 0.6; }
+
+    /* installed phone app: a quiet ⋯ in the corner */
+    #appMenu {
+      position: fixed; right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      display: flex; gap: 8px; align-items: center; font: 500 13px -apple-system, system-ui, sans-serif;
+    }
+    #appMenu[hidden] { display: none; }
+    #appMenu button {
+      border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(10, 12, 24, 0.28); color: #f6efe8;
+      border-radius: 999px; padding: 9px 14px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font: inherit;
+    }
+    #appMenu [data-app] { display: none; }
+    #appMenu.open [data-app] { display: inline-block; }
   </style>
 </head>
 <body>
   <canvas id="sky" aria-label="Paper planes drifting in every direction. Move the pointer and they follow."></canvas>
   <div id="clock" hidden><div class="date"></div><div class="time"></div></div>
-  <button id="begin" type="button">Touch to begin<small>sound on · Esc to leave in the app</small></button>
+  <button id="begin" type="button">Touch to begin<small>sound on</small></button>
+  <div id="appMenu" hidden>
+    <button type="button" data-app="mood">Mood</button>
+    <button type="button" data-app="clock">Clock</button>
+    <button type="button" data-app="sound">Sound</button>
+    <button type="button" aria-label="Menu">⋯</button>
+  </div>
   <script src="sky.js"></script>
+  <script>
+    // offline support for the installed app (only over http(s); the Mac app loads from disk)
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  </script>
 </body>
 </html>

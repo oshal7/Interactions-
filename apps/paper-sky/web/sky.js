@@ -15,12 +15,16 @@
 //   sound    0 | 1                                     (default 1 interactive, 0 otherwise)
 //   trails   0 | 1                                     (default 1, 0 for wallpaper)
 //   clock    0 | 1                                     (default 1 for screensaver)
+//   scale    exact pixel ratio, ignoring the device    (wallpaper exports, e.g. 3 for iPhone)
+//   app      1 = installed phone app: small ⋯ menu for mood + clock, choices remembered
 //
 // Native hosts drive it through window.paperSky:
 //   paperSky.pointer(x, y, down)  feed the cursor (CSS px) when the page can't receive events
 //   paperSky.pause() / resume()   stop/start all work (hidden, screen asleep, covered)
 //   paperSky.set({ ... })         change options live
 //   paperSky.stats()              { fps, frameMs, planes, px } for profiling
+//   paperSky.snapshot()           → canvas: background + planes (+ clock if on), full resolution
+//   paperSky.record(seconds)      → Promise<Blob>: a looping video of the sky (mp4 where supported, else webm)
 // ---------------------------------------------------------------
 (function () {
   "use strict";
@@ -47,6 +51,16 @@
     size: 0.5,
   };
 
+  // the installed phone app remembers mood + clock
+  const isApp = Q.get("app") === "1";
+  if (isApp) {
+    try {
+      const saved = JSON.parse(localStorage.getItem("paperSky:app") || "{}");
+      if (saved.mood) opt.mood = saved.mood;
+      if (typeof saved.clock === "boolean") opt.clock = saved.clock;
+    } catch { /* storage unavailable */ }
+  }
+
   const root = document.documentElement;
   root.dataset.mode = mode;
   root.dataset.mood = opt.mood;
@@ -56,7 +70,7 @@
   const ctx = canvas.getContext("2d", { alpha: true });
   let W = 0, H = 0, focal = 1;
   function resize() {
-    const dpr = Math.min(opt.dpr, window.devicePixelRatio || 1);
+    const dpr = Q.has("scale") ? num("scale", 1) : Math.min(opt.dpr, window.devicePixelRatio || 1);
     W = window.innerWidth;
     H = window.innerHeight;
     canvas.width = Math.round(W * dpr);
@@ -190,7 +204,7 @@
       rate: rand(0.75, 1.25), ph: rand(6.3), trail: [], trailT: 0, follow: 0, alpha: 0,
     };
   }
-  const target = () => Math.max(4, Math.round(opt.planes * clamp(W / H / 1.6, 0.45, 1)));
+  const target = () => Math.max(4, Math.round(opt.planes * clamp(W / H / 1.6, 0.6, 1)));   // fewer on narrow screens, but phones still get a full sky
   function syncCount() {
     const n = target();
     while (planes.length < n) planes.push(makePlane());
@@ -455,6 +469,76 @@
     if (e.key === "Escape") window.webkit?.messageHandlers?.paperSky?.postMessage("close");
   });
 
+  // ---------- export: still + video (wallpaper studio) ----------
+  // The sky canvas is transparent (the gradient is CSS), so exports paint the gradient first.
+  const SKY_STOPS = {
+    dusk: [[0, "#232a45"], [0.45, "#4b4a6b"], [0.8, "#b48a8f"], [1, "#e7b99c"]],
+    day: [[0, "#a9c3dc"], [0.55, "#d5e1ea"], [1, "#f4ece0"]],
+    night: [[0, "#03050b"], [0.6, "#0a1020"], [1, "#141a2c"]],
+  };
+  function compose(out) {
+    const c = out.getContext("2d");
+    const g = c.createLinearGradient(0, 0, 0, out.height);
+    for (const [at, col] of SKY_STOPS[opt.mood] || SKY_STOPS.dusk) g.addColorStop(at, col);
+    c.fillStyle = g;
+    c.fillRect(0, 0, out.width, out.height);
+    c.drawImage(canvas, 0, 0, out.width, out.height);
+    if (opt.clock && !clockEl.hidden) {
+      const s = out.width / W, d = new Date();
+      c.fillStyle = opt.mood === "day" ? "rgba(25,32,42,0.85)" : "rgba(255,248,242,0.92)";
+      c.textAlign = "center";
+      c.font = `500 ${Math.round(18 * s)}px -apple-system, system-ui, sans-serif`;
+      c.fillText(d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }), out.width / 2, out.height * 0.14);
+      c.font = `600 ${Math.round(Math.min(150, W * 0.2) * s)}px -apple-system, system-ui, sans-serif`;
+      c.fillText(d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), out.width / 2, out.height * 0.14 + Math.min(150, W * 0.2) * s);
+    }
+    return out;
+  }
+  function snapshot() {
+    const out = document.createElement("canvas");
+    out.width = canvas.width;
+    out.height = canvas.height;
+    return compose(out);
+  }
+  function record(seconds = 6) {
+    return new Promise((resolve, reject) => {
+      const out = document.createElement("canvas");
+      out.width = canvas.width;
+      out.height = canvas.height;
+      if (!out.captureStream || !window.MediaRecorder) { reject(new Error("Video recording isn't supported in this browser.")); return; }
+      const types = ["video/mp4;codecs=avc1", "video/mp4", "video/webm;codecs=vp9", "video/webm"];
+      const type = types.find((t) => MediaRecorder.isTypeSupported(t)) || "";
+      const rec = new MediaRecorder(out.captureStream(30), type ? { mimeType: type, videoBitsPerSecond: 12e6 } : undefined);
+      const chunks = [];
+      rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+      rec.onstop = () => resolve(new Blob(chunks, { type: rec.mimeType || type || "video/webm" }));
+      rec.onerror = (e) => reject(e.error || e);
+      let live = true;
+      const pump = () => { if (!live) return; compose(out); requestAnimationFrame(pump); };
+      pump();
+      rec.start(250);
+      setTimeout(() => { live = false; rec.stop(); }, seconds * 1000);
+    });
+  }
+
+  // ---------- installed phone app: a tiny ⋯ menu ----------
+  const appMenu = document.getElementById("appMenu");
+  if (appMenu) {
+    appMenu.hidden = !isApp;
+    const remember = () => { try { localStorage.setItem("paperSky:app", JSON.stringify({ mood: opt.mood, clock: opt.clock })); } catch { /* ignore */ } };
+    appMenu.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-app]");
+      if (!b) { appMenu.classList.toggle("open"); return; }
+      if (b.dataset.app === "mood") {
+        const order = ["dusk", "day", "night"];
+        window.paperSky.set({ mood: order[(order.indexOf(opt.mood) + 1) % order.length] });
+      }
+      if (b.dataset.app === "clock") window.paperSky.set({ clock: !opt.clock });
+      if (b.dataset.app === "sound") { startSound(); if (ac) (ac.state === "running" ? ac.suspend() : ac.resume()); }
+      remember();
+    });
+  }
+
   // ---------- public API for native hosts ----------
   window.paperSky = {
     pointer(x, y, down) { feed(x, y, down); },
@@ -471,6 +555,8 @@
     startSound,
     stats: () => ({ fps: Math.round(perf.fps), frameMs: +perf.frameMs.toFixed(2), planes: planes.length, px: `${canvas.width}×${canvas.height}` }),
     options: opt,
+    snapshot,
+    record,
   };
 
   resize();

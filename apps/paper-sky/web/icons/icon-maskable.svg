@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#232a45"/>
+      <stop offset="0.45" stop-color="#4b4a6b"/>
+      <stop offset="0.8" stop-color="#b48a8f"/>
+      <stop offset="1" stop-color="#e7b99c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sky)"/>
+  <g id="plane" transform="translate(256 262) rotate(-16) scale(1.05)">
+    <!-- far wing, keel, near wing: three folds of paper -->
+    <path d="M118 -6 L-104 -62 L-60 4 Z" fill="#d9cfd3"/>
+    <path d="M118 -6 L-60 4 L-84 44 Z" fill="#b9aab4"/>
+    <path d="M118 -6 L-60 4 L-120 22 Z" fill="#fff6ef"/>
+    <path d="M118 -6 L-60 4" stroke="#8c7d8c" stroke-width="2" fill="none"/>
+  </g>
+  <circle cx="122" cy="118" r="2.5" fill="#fff" opacity=".7"/><circle cx="388" cy="92" r="2" fill="#fff" opacity=".6"/>
+  <circle cx="420" cy="196" r="1.8" fill="#fff" opacity=".5"/><circle cx="86" cy="226" r="1.6" fill="#fff" opacity=".5"/>
+</svg>

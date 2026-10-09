@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wallpaper Studio · Paper Sky</title>
+  <meta name="description" content="Make a Paper Sky lock-screen wallpaper for your phone: a still at your screen's exact resolution, or a looping video for a Live Photo wallpaper.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/site.css">
+  <link rel="stylesheet" href="../../assets/css/experiment.css">
+  <style>
+    .studio { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; padding: 8px 0 64px; }
+    .stagebox { display: grid; place-items: center; min-height: 70vh; border-radius: 20px; background: radial-gradient(circle at 50% 40%, #1a1a22, #0b0b0e 70%); border: 1px solid var(--line); overflow: hidden; }
+    .phone { position: relative; border-radius: 44px; padding: 10px; background: #111; box-shadow: 0 0 0 2px #2a2a31, 0 40px 90px rgba(0,0,0,.6); }
+    .screen { position: relative; overflow: hidden; border-radius: 34px; }
+    .screen iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; }
+    .notch { position: absolute; z-index: 2; top: 20px; left: 50%; transform: translateX(-50%); width: 30%; height: 26px; border-radius: 20px; background: #000; }
+    .lockhint { position: absolute; z-index: 2; left: 0; right: 0; top: 13%; text-align: center; color: rgba(255,255,255,.88); pointer-events: none; font-family: -apple-system, system-ui, sans-serif; }
+    .lockhint .d { font-size: 13px; font-weight: 500; }
+    .lockhint .t { font-size: 62px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+    .studio .panel { position: sticky; top: 16px; }
+    .status { min-height: 1.4em; color: var(--ink-2); font-size: 13px; margin: 0; }
+    .howto { max-width: 74ch; }
+    .howto ol { padding-left: 20px; color: var(--ink-2); }
+    .howto li { margin: 6px 0; }
+    .howto b { color: var(--ink); }
+    @media (max-width: 860px) { .studio { grid-template-columns: minmax(0, 1fr); } .studio .panel { position: static; } }
+  </style>
+</head>
+<body class="exp">
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand-mark">i</span> Interaction Lab</a>
+      <nav>
+        <a href="./">Paper Sky</a>
+        <a href="../">Apps</a>
+      </nav>
+    </header>
+
+    <div class="lab-intro">
+      <div>
+        <p class="eyebrow">Paper Sky · Wallpaper studio</p>
+        <h1>Make your lock screen</h1>
+        <p class="muted">iPhones don't allow animated or interactive lock screens from apps. You can still have the sky there: save a
+          still at your phone's exact resolution, or record a short loop and turn it into a Live Photo wallpaper.</p>
+      </div>
+    </div>
+
+    <main class="studio">
+      <div class="stagebox">
+        <div class="phone" id="phone">
+          <div class="screen" id="screen">
+            <iframe id="sky" title="Paper Sky wallpaper preview"></iframe>
+            <div class="notch" aria-hidden="true"></div>
+            <div class="lockhint" id="lockhint" aria-hidden="true"><div class="d" id="ld"></div><div class="t" id="lt"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel" aria-label="Wallpaper settings">
+        <fieldset>
+          <legend>Phone</legend>
+          <div class="row">
+            <label class="row-head" for="device">Screen</label>
+            <select id="device">
+              <option value="393,852,3">iPhone 15 / 16 / Pro · 1179×2556</option>
+              <option value="430,932,3">iPhone Plus / Pro Max · 1290×2796</option>
+              <option value="402,874,3">iPhone 16 Pro · 1206×2622</option>
+              <option value="440,956,3">iPhone 16 Pro Max · 1320×2868</option>
+              <option value="375,812,3">iPhone mini · 1125×2436</option>
+              <option value="375,667,2">iPhone SE · 750×1334</option>
+              <option value="412,915,3">Android (Pixel-size) · 1236×2745</option>
+              <option value="360,800,3">Android (compact) · 1080×2400</option>
+            </select>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Sky</legend>
+          <div class="row">
+            <label class="row-head" for="mood">Mood</label>
+            <select id="mood"><option value="dusk">Dusk</option><option value="day">Morning</option><option value="night">Night</option></select>
+          </div>
+          <div class="row">
+            <div class="row-head"><label for="planes">Planes</label><output id="planesOut">22</output></div>
+            <input id="planes" type="range" min="6" max="40" step="1" value="22">
+          </div>
+          <label class="row-inline"><span>Soft trails</span><input id="trails" type="checkbox" checked></label>
+          <label class="row-inline"><span>Preview the phone's clock</span><input id="hint" type="checkbox" checked></label>
+          <p class="panel-note">The clock preview is only a guide: it's not saved. Your phone draws its own clock.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Save</legend>
+          <div class="btns">
+            <button class="btn primary" type="button" id="still">Save still</button>
+            <button class="btn" type="button" id="video">Record 6 s loop</button>
+          </div>
+          <p class="status" id="status" role="status"></p>
+        </fieldset>
+      </aside>
+    </main>
+
+    <article class="howto explainer" style="padding-top:8px">
+      <h2>Setting it <span class="serif">on your phone.</span></h2>
+      <h3>iPhone, still wallpaper</h3>
+      <ol>
+        <li>Open this page on the iPhone, pick your model, tap <b>Save still</b>, then <b>Save Image</b>.</li>
+        <li>Photos › the image › Share › <b>Use as Wallpaper</b>, or press and hold the lock screen › <b>+</b> › Photos.</li>
+      </ol>
+      <h3>iPhone, moving wallpaper (Live Photo)</h3>
+      <ol>
+        <li>Tap <b>Record 6 s loop</b> and save the video.</li>
+        <li>Convert it to a Live Photo with a video-to-Live-Photo app (for example intoLive), then set that Live Photo as the lock screen wallpaper.</li>
+        <li>iOS plays a Live Photo wallpaper briefly when you wake the phone. It can't be touched or run continuously; that's an iOS limit.</li>
+      </ol>
+      <h3>Want it interactive?</h3>
+      <ol>
+        <li><b>iPhone:</b> open <a href="web/index.html?mode=interactive&amp;app=1&amp;clock=1&amp;dpr=2">the Paper Sky app page</a> in Safari › Share › <b>Add to Home Screen</b>. It opens full screen, follows your finger, plays the ambient sound, and works offline.</li>
+        <li><b>Android:</b> install the <b>Paper Sky live wallpaper</b> app from the <a href="./#phones">Paper Sky page</a>. It moves on the home and lock screens and follows your finger on the home screen.</li>
+      </ol>
+    </article>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const frame = $("sky"), screenEl = $("screen"), phone = $("phone");
+    let dev = { w: 393, h: 852, s: 3 };
+
+    function load() {
+      const q = new URLSearchParams({
+        mode: "wallpaper", autopilot: "1", sound: "0", clock: "0", fps: "60",
+        scale: String(dev.s), planes: $("planes").value, mood: $("mood").value, trails: $("trails").checked ? "1" : "0",
+      });
+      frame.src = `web/index.html?${q}`;
+      fit();
+    }
+    // The iframe is the phone's real size in points; it's scaled down to fit the preview.
+    function fit() {
+      const box = phone.parentElement.getBoundingClientRect();
+      const k = Math.min(1, (box.height * 0.86) / (dev.h + 20), (box.width * 0.9) / (dev.w + 20));
+      frame.style.width = dev.w + "px";
+      frame.style.height = dev.h + "px";
+      frame.style.transform = `scale(${k})`;
+      screenEl.style.width = dev.w * k + "px";
+      screenEl.style.height = dev.h * k + "px";
+      $("lt").style.fontSize = 72 * k + "px";
+      $("ld").style.fontSize = 15 * k + "px";
+    }
+    function tickClock() {
+      const d = new Date();
+      $("lt").textContent = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M/i, "");
+      $("ld").textContent = d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+    }
+    tickClock(); setInterval(tickClock, 15000);
+    window.addEventListener("resize", fit);
+
+    $("device").addEventListener("change", (e) => { const [w, h, s] = e.target.value.split(",").map(Number); dev = { w, h, s }; load(); });
+    $("mood").addEventListener("change", () => frame.contentWindow.paperSky?.set({ mood: $("mood").value }));
+    $("planes").addEventListener("input", (e) => { $("planesOut").textContent = e.target.value; });
+    $("planes").addEventListener("change", load);
+    $("trails").addEventListener("change", () => frame.contentWindow.paperSky?.set({ trails: $("trails").checked }));
+    $("hint").addEventListener("change", (e) => { $("lockhint").hidden = !e.target.checked; });
+
+    // Phones: share sheet (Save Image / Save Video). Desktop: a normal download.
+    async function deliver(blob, name) {
+      const file = new File([blob], name, { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: "Paper Sky wallpaper" }); return "Shared."; }
+        catch (e) { if (e.name === "AbortError") return "Cancelled."; }
+      }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.append(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+      return "Saved to your downloads.";
+    }
+    const status = (m) => { $("status").textContent = m; };
+
+    $("still").addEventListener("click", () => {
+      const sky = frame.contentWindow.paperSky;
+      if (!sky) return status("Still loading…");
+      const c = sky.snapshot();
+      c.toBlob(async (blob) => status(await deliver(blob, `paper-sky-${$("mood").value}-${c.width}x${c.height}.png`)), "image/png");
+    });
+    $("video").addEventListener("click", async () => {
+      const sky = frame.contentWindow.paperSky;
+      if (!sky) return status("Still loading…");
+      $("video").disabled = true;
+      status("Recording 6 seconds…");
+      try {
+        const blob = await sky.record(6);
+        const ext = blob.type.includes("mp4") ? "mp4" : "webm";
+        status(await deliver(blob, `paper-sky-${$("mood").value}-loop.${ext}`) + (ext === "webm" ? " (WebM: Safari on iPhone records MP4)" : ""));
+      } catch (e) {
+        status(e.message || "Recording failed.");
+      } finally {
+        $("video").disabled = false;
+      }
+    });
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wallpaper picker thumbnail: the sky with a plane. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/sky_bg" />
+    <item android:drawable="@drawable/plane" />
+</layer-list>
