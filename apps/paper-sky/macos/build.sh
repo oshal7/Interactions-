@@ -41,7 +41,7 @@ cp -R "$WEB" "$SAVER/Contents/Resources/web"
 for arch in "${ARCHS[@]}"; do
   swiftc -O -module-name PaperSkyApp -target "$arch-apple-macos$MINOS" \
     -o "$BUILD/app-$arch" \
-    "$HERE/App/main.swift" \
+    -parse-as-library "$HERE/App/PaperSkyApp.swift" \
     -framework AppKit -framework WebKit -framework ServiceManagement
 done
 APP="$OUT/Paper Sky.app"

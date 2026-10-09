@@ -210,10 +210,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mouseTimer?.invalidate()
         guard followCursor, !wallpapers.isEmpty else { return }
         let interval = 1.0 / (lowPower ? 20.0 : 30.0)
-        mouseTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.feedMouse() }
-        }
+        // selector-based timer: fires on the main run loop, no closure capture issues
+        mouseTimer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(mouseTick),
+                                          userInfo: nil, repeats: true)
     }
+
+    @objc private func mouseTick() { feedMouse() }
 
     private func feedMouse() {
         let p = NSEvent.mouseLocation
@@ -247,8 +249,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ambient = (window, sky)
         wallpapers.forEach { $0.sky.js("paperSky.pause()") }   // only one sky draws at a time
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == 53 {   // Esc
-                Task { @MainActor in self?.closeAmbient() }
+            if event.keyCode == 53 {   // Esc (local monitors run on the main thread)
+                self?.closeAmbient()
                 return nil
             }
             return event
@@ -384,7 +386,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func screensChanged() { if wallpaperOn { startWallpaper() } }
 }
 
-let app = NSApplication.shared
-let delegate = AppDelegate()
-app.delegate = delegate
-app.run()
+// Entry point on the main actor (AppKit lives there).
+@main
+@MainActor
+enum PaperSkyMain {
+    static let delegate = AppDelegate()
+    static func main() {
+        let app = NSApplication.shared
+        app.delegate = delegate
+        app.run()
+    }
+}
