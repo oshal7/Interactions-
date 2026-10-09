@@ -1,0 +1,51 @@
+/* Paper plane v2: moods are just background + chrome colours. */
+
+.exp-stage {
+  --chrome-ink: rgba(244, 238, 230, 0.72);
+  transition: background 1.2s ease;
+  cursor: none;
+}
+.exp-stage[data-mood="dusk"] { --stage-bg: linear-gradient(180deg, #232a45 0%, #4b4a6b 45%, #b48a8f 80%, #e7b99c 100%); }
+.exp-stage[data-mood="day"] {
+  --stage-bg: linear-gradient(180deg, #a9c3dc 0%, #d5e1ea 55%, #f4ece0 100%);
+  --chrome-ink: rgba(30, 38, 48, 0.72);
+}
+.exp-stage[data-mood="night"] { --stage-bg: linear-gradient(180deg, #03050b 0%, #0a1020 60%, #141a2c 100%); }
+
+.exp-stage[data-mood="day"] .exp-title b { color: #1b222b; }
+.exp-stage[data-mood="day"] .exp-btn { background: rgba(255, 255, 255, 0.5); color: #1b222b; border-color: rgba(27, 34, 43, 0.15); }
+.exp-stage[data-mood="day"] .exp-btn[aria-pressed="true"] { background: #1b222b; color: #f4ece0; }
+.exp-stage .exp-chrome a,
+.exp-stage .exp-chrome button,
+.exp-stage .panel { cursor: pointer; }
+.exp-stage .panel { cursor: default; }
+
+.exp-btn { white-space: nowrap; }
+@media (max-width: 760px) {
+  .exp-btn .lbl { display: none; }
+}
+
+/* the begin veil: a slow breathing dot */
+.exp-start { background: rgba(10, 12, 24, 0.25); transition: opacity 1.2s ease; cursor: pointer; }
+.exp-start.fading { opacity: 0; pointer-events: none; }
+.begin-inner { display: grid; justify-items: center; gap: 14px; }
+.begin-inner small { font-size: 11px; letter-spacing: 0.08em; text-transform: none; opacity: 0.6; }
+.begin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 24px currentColor;
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe { 50% { transform: scale(2.2); opacity: 0.5; } }
+
+.exp-hint { transition: opacity 1s ease; }
+
+/* the piece takes all touches on the sky; leave some page to scroll from on phones */
+@media (hover: none) {
+  .exp-stage { height: 86svh; cursor: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .begin-dot { animation: none; }
+}

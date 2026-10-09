@@ -45,6 +45,22 @@
       transition: border-color .2s, transform .25s cubic-bezier(.2,.8,.2,1);
     }
     .exp-card:hover { border-color: var(--ink-3); transform: translateY(-2px); }
+    .exp-item { display: grid; gap: 8px; align-content: start; }
+    .versions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .versions a {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      color: var(--ink-2);
+    }
+    .versions a:hover { border-color: var(--ink-3); color: var(--ink); }
+    .versions b { color: var(--ink); }
+    .versions span { grid-column: 1 / -1; font-size: 12px; color: var(--ink-3); }
     .exp-card .swatch { height: 120px; border-radius: 12px; background: radial-gradient(circle at 30% 30%, var(--a, #555), #0b0b0e 70%); }
     .exp-card b { font-size: 20px; letter-spacing: -0.02em; }
     .exp-card p { margin: 0; color: var(--ink-2); font-size: 14px; }
@@ -117,13 +133,14 @@
     const queued = EXPERIMENTS.filter((e) => e.status === "queued");
 
     document.getElementById("built").innerHTML = built.length
-      ? built.map((e) => `
+      ? built.map((e) => `<div class="exp-item">
           <a class="exp-card" href="${esc(e.slug)}/" style="--a:${esc(e.accent ?? "#666")}">
             <div class="swatch" aria-hidden="true"></div>
             <b>${esc(e.title)}</b>
             <p>${esc(e.summary ?? "")}</p>
             <div class="btns">${(e.tags ?? []).map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>
-          </a>`).join("")
+          </a>${e.versions ? `
+          <div class="versions">${e.versions.map((v, i) => `<a href="${esc(e.slug)}/${esc(v.path)}"><b>${esc(v.v)}</b>${i === 0 ? " · latest" : ""}<span>${esc(v.note)}</span></a>`).join("")}</div>` : ""}</div>`).join("")
       : `<div class="empty"><b>Nothing rebuilt yet.</b> Send a screen recording of any piece in the queue and it lands here,
           with a playground and a breakdown. New pieces start from <code>experiments/_template</code>.</div>`;
 

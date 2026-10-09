@@ -9,8 +9,8 @@
 //   6. drawing: clouds, dust, trails, planes (painter's algorithm)
 //   7. wiring
 // ---------------------------------------------------------------
-import { createStage, rand, clamp } from "../../assets/js/stage.js";
-import { createSynth } from "../../assets/js/sound.js";
+import { createStage, rand, clamp } from "../../../assets/js/stage.js";
+import { createSynth } from "../../../assets/js/sound.js";
 
 // ---------- 1. config ----------
 const DEFAULTS = {

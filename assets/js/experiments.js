@@ -3,6 +3,7 @@
 // Kept separate from the UI interactions in registry.js.
 //
 // status: "built"   → has a folder in experiments/<slug>/
+// versions          → optional; each version is a frozen snapshot in <slug>/<v>/
 //         "queued"  → spotted, waiting for a recording to rebuild
 // ---------------------------------------------------------------
 
@@ -13,9 +14,14 @@ export const EXPERIMENTS = [
   {
     slug: "paper-plane",
     title: "Paper plane",
-    summary: "A flock of folded paper planes gliding through a 3D sky. Tap one to knock it tumbling, sweep past for a gust, drag to throw a new one.",
+    summary: "Paper planes drifting on slow air currents in every direction. Move your finger and they copy your motion; hold still and they circle you. Ambient pad and chimes.",
     status: "built",
-    tags: ["3D projection", "Glider physics", "Painter's algorithm", "Panned Web Audio"],
+    // newest first; the folder's index.html always opens versions[0]
+    versions: [
+      { v: "v2", path: "v2/", note: "drift · meditative, follows your finger" },
+      { v: "v1", path: "v1/", note: "toy · knock, gust, throw" },
+    ],
+    tags: ["3D flow field", "Boids", "Gesture grid", "Generative music", "3D projection"],
     source: { label: "tol.is", url: "https://tol.is" },
     accent: "#9fb6cc",
   },

@@ -31,6 +31,11 @@ To add one:
    - `assets/css/experiment.css`: the dark full-screen layout, overlay chrome and floating panel.
 3. In `assets/js/experiments.js`, add an entry with `status: "built"` and a `slug`. A queued entry with the same title gets ticked off automatically.
 
+**Versions.** A piece can have versions, each a frozen snapshot in its own folder (`experiments/paper-plane/v1/`,
+`v2/`, …). The piece's own `index.html` redirects to the newest one, every version page has a v1 · v2 switcher, and
+the entry in `experiments.js` lists them under `versions` (newest first). To start a new version, copy the latest
+folder to the next number, then change only the copy.
+
 ## Run it locally
 
 ES modules need a server; opening the file directly won't load them.
@@ -76,5 +81,8 @@ interactions/
 experiments/
   index.html                   experiments hub (rebuilt + queue)
   _template/                   working starter piece ("Ripples")
+  paper-plane/                 index.html → latest version
+    v1/                        toy: knock, gust, throw
+    v2/                        drift: meditative, follows your finger, generative music
 .github/workflows/pages.yml    deploys the site to GitHub Pages
 ```

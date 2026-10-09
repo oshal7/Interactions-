@@ -85,6 +85,26 @@
 .exp-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .exp-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
+/* version switcher: v1 · v2 · … next to the back link */
+.exp-nav { display: flex; align-items: center; gap: 14px; }
+.exp-versions {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  pointer-events: auto;
+}
+.exp-versions a {
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.exp-versions a:hover { background: rgba(127, 127, 127, 0.16); }
+.exp-versions a[aria-current="page"] { background: rgba(127, 127, 127, 0.3); font-weight: 600; }
+
 /* ---------- floating settings panel (reuses .panel rows from site.css) ---------- */
 .exp-stage .panel {
   position: absolute;

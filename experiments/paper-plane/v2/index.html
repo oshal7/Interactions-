@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper Plane v2 · Experiments</title>
+  <meta name="description" content="A meditative sky of paper planes drifting on slow air currents in every direction. Move your finger and they follow the same motion; hold still and they circle you.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../assets/css/site.css">
+  <link rel="stylesheet" href="../../../assets/css/experiment.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="exp">
+  <!-- ======================= THE PIECE ======================= -->
+  <section class="exp-stage" id="stage" data-mood="dusk" aria-label="Paper planes drifting in every direction. Move your finger and nearby planes follow the same motion; hold still and they circle around it.">
+    <div class="exp-chrome">
+      <div class="exp-top">
+        <div class="exp-nav">
+          <a href="../../">← Experiments</a>
+          <nav class="exp-versions" aria-label="Versions"><a href="../v1/">v1</a><a href="./" aria-current="page">v2</a></nav>
+        </div>
+        <div class="exp-actions">
+          <button class="exp-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound">♪<span class="lbl"> Sound</span></button>
+          <button class="exp-btn" id="tuneBtn" type="button" aria-expanded="false" aria-controls="panel">Tune</button>
+        </div>
+      </div>
+      <div></div>
+      <div class="exp-bottom">
+        <div class="exp-title"><b>Paper plane</b><span>v2 · drift</span></div>
+        <span class="exp-hint" id="hint">Move slowly. They follow. Hold still, and they circle you.</span>
+        <a href="#how">How it's built ↓</a>
+      </div>
+    </div>
+
+    <button class="exp-start" id="begin" type="button">
+      <span class="begin-inner"><span class="begin-dot" aria-hidden="true"></span>Touch to begin<small>sound on, if you like</small></span>
+    </button>
+
+    <aside class="panel" id="panel" aria-label="Settings" hidden>
+      <fieldset>
+        <legend>Sky</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-count">Planes</label><output data-out="count"></output></div>
+          <input id="c-count" type="range" min="6" max="80" step="1" data-key="count">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-pace">Pace</label><output data-out="pace"></output></div>
+          <input id="c-pace" type="range" min="0.3" max="2.5" step="0.05" data-key="pace">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-together">Flock together</label><output data-out="together"></output></div>
+          <input id="c-together" type="range" min="0" max="2" step="0.05" data-key="together">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-current">Air currents</label><output data-out="current"></output></div>
+          <input id="c-current" type="range" min="0" max="2" step="0.05" data-key="current">
+        </div>
+        <div class="row">
+          <label class="row-head" for="c-mood">Mood</label>
+          <select id="c-mood" data-key="mood">
+            <option value="dusk">Dusk</option>
+            <option value="day">Morning</option>
+            <option value="night">Night</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your finger</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-follow">How closely they follow</label><output data-out="follow"></output></div>
+          <input id="c-follow" type="range" min="0" max="1.5" step="0.05" data-key="follow">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-reach">Reach</label><output data-out="reach"></output></div>
+          <input id="c-reach" type="range" min="60" max="360" step="10" data-key="reach">
+        </div>
+        <div class="row">
+          <div class="row-head"><label for="c-memory">How long the air remembers</label><output data-out="memory"></output></div>
+          <input id="c-memory" type="range" min="0.3" max="6" step="0.1" data-key="memory">
+        </div>
+        <label class="row-inline"><span>Circle me when I hold still</span><input type="checkbox" data-key="orbit"></label>
+        <label class="row-inline"><span>Show the air I move</span><input type="checkbox" data-key="showAir"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Look</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-size">Plane size</label><output data-out="size"></output></div>
+          <input id="c-size" type="range" min="0.25" max="1" step="0.05" data-key="size">
+        </div>
+        <label class="row-inline"><span>Soft trails</span><input type="checkbox" data-key="trails"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sound</legend>
+        <div class="row">
+          <div class="row-head"><label for="c-volume">Volume</label><output data-out="volume"></output></div>
+          <input id="c-volume" type="range" min="0" max="1" step="0.05" data-key="volume">
+        </div>
+        <label class="row-inline"><span>Ambient pad</span><input type="checkbox" data-key="pad"></label>
+        <label class="row-inline"><span>Chimes when they follow you</span><input type="checkbox" data-key="chimes"></label>
+        <label class="row-inline"><span>Wind</span><input type="checkbox" data-key="wind"></label>
+      </fieldset>
+
+      <fieldset>
+        <div class="btns"><button class="btn primary" type="button" data-action="reset">Reset</button></div>
+      </fieldset>
+    </aside>
+  </section>
+
+  <!-- ======================= BREAKDOWN ======================= -->
+  <div class="wrap">
+    <article class="explainer" id="how">
+      <p class="eyebrow">How it's built · v2</p>
+      <h2>Nothing to do, <span class="serif">something to feel.</span></h2>
+      <p class="muted">v1 was a toy: tap to knock, drag to throw. v2 takes the control away. Planes live in the sky around you
+        and drift on slow air currents in every direction. Your finger doesn't hit them or make new ones; it moves the
+        <em>air</em>, and planes caught in that air do what you did. Hold still and they slowly circle you.</p>
+
+      <h3 style="margin-top:40px">What changed from v1</h3>
+      <div class="table-scroll">
+        <table class="facts">
+          <thead><tr><th></th><th>v1 · toy</th><th>v2 · drift</th></tr></thead>
+          <tbody>
+            <tr><td>Where planes go</td><td>One cruise direction (side, away or toward), recycled at the edges.</td><td>Every direction. A shared 3D flow field plus loose flocking; soft walls turn them back so they never leave.</td></tr>
+            <tr><td>A tap</td><td>Knocks the plane into a tumble.</td><td>Nothing happens. Only movement matters.</td></tr>
+            <tr><td>A drag</td><td>Throws a new plane.</td><td>Paints a current in the air. Planes in it copy your direction and speed.</td></tr>
+            <tr><td>Holding still</td><td>-</td><td>Nearby planes circle your fingertip.</td></tr>
+            <tr><td>Sound</td><td>Crinkles, whooshes, wind.</td><td>A slow chord pad in reverb, soft chimes as planes join your gesture, quiet wind.</td></tr>
+            <tr><td>Pace</td><td>Quick and playful.</td><td>About half the speed, longer easing, everything fades in and out.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:48px">Ingredients</h3>
+      <ul class="ingredients">
+        <li><b>3D flow field</b><span>A wind made of layered sine waves through space and time, giving smooth, swirling currents everywhere.</span></li>
+        <li><b>Boids (light)</b><span>Separation, alignment, cohesion: the three rules that make birds (and planes) move as loose flocks.</span></li>
+        <li><b>Soft boundary</b><span>The further outside an invisible bubble a plane drifts, the harder it turns back. No edges, no respawning.</span></li>
+        <li><b>A gesture grid</b><span>Your movement is written into a coarse grid over the screen that slowly fades, like a wake in water.</span></li>
+        <li><b>Screen → world velocity</b><span>Pixels per second at your finger become world units per second at each plane's depth, so they move exactly like you on screen.</span></li>
+        <li><b>Orbit steering</b><span>Holding still turns the pull into a sideways (tangent) push around your fingertip.</span></li>
+        <li><b>Plane renderer from v1</b><span>Same four triangles, rotation, projection and depth sort.</span></li>
+        <li><b>Generative music</b><span>A chord from a pentatonic scale every few seconds, slow attack and long release, through a synthetic reverb.</span></li>
+      </ul>
+
+      <div class="steps">
+        <section class="step">
+          <div>
+            <h3>The air: a flow field you can't see</h3>
+            <p>Every point in space has a wind direction made from a few overlapping sine waves of position and time. Nearby points
+              have similar wind, so planes close together drift together, and the pattern slowly changes over time, so the sky
+              never repeats.</p>
+<pre><code>function flow(x, y, z, t) {
+  return [
+    Math.sin(y * 0.35 + t * 0.07) + Math.sin(z * 0.21 - t * 0.05),
+    Math.sin(z * 0.28 + t * 0.06) * 0.5 + Math.sin(x * 0.19 + t * 0.04) * 0.4,
+    Math.sin(x * 0.31 - t * 0.06) + Math.sin(y * 0.23 + t * 0.08),
+  ];
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Loose flocks</h3>
+            <p>Each plane looks at its neighbours: it moves away from any that are too close (separation), turns a little toward
+              their average heading (alignment), and drifts a little toward their centre (cohesion). <em>Flock together</em>
+              scales the last two. A light touch gives loose, breathing groups instead of a tight swarm.</p>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Your finger moves the air, not the planes</h3>
+            <p>The screen is divided into a coarse grid. As you move, your velocity (px/s) is added to the cells around your finger,
+              strongest at the centre. Every frame the whole grid fades a little (<em>How long the air remembers</em>). Each plane
+              reads the grid where it appears on screen and converts that to world speed at its own depth, so near and far planes
+              move the same distance <em>on screen</em> as your finger did. That's why they seem to copy you.</p>
+<pre><code>// write: add finger velocity to nearby cells
+cell.vx += pointer.vx * falloff * dt * 4;
+
+// read: screen px/s → world units/s at the plane's depth
+const want = [g.vx * z / focal, -g.vy * z / focal, 0];
+const w = clamp(Math.hypot(...want) / pace, 0, 1) * config.follow;
+desired = mix(natural, want, w);</code></pre>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Hold still and they circle you</h3>
+            <p>When your finger is down but barely moving, nearby planes steer toward a ring around it: a sideways push
+              (perpendicular to the line between plane and finger) keeps them going round, and a gentle pull keeps the ring from drifting
+              out. Lift your finger and the flow field slowly takes them back.</p>
+          </div>
+        </section>
+
+        <section class="step">
+          <div>
+            <h3>Generative, calm sound</h3>
+            <p>Every 5–8 seconds a three-note chord is picked from a pentatonic scale (no note ever clashes) and played with a
+              2.5-second fade-in and a long tail through a synthetic reverb (a convolver fed decaying noise). When planes start
+              following your gesture, a soft high note from the same scale chimes, panned to where you are, at most every few hundred ms.
+              Under it, a quiet wind.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <footer class="footer">
+      Inspired by “Paper plane” on <a href="https://tol.is" rel="noopener">tol.is</a> by Tolis C. Rebuilt from scratch for learning.
+      · <a href="../v1/">v1</a> · <a href="../../">All experiments</a>
+    </footer>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

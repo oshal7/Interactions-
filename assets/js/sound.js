@@ -169,6 +169,14 @@ export function createSynth(options = {}) {
       master = ctx.createGain();
       master.connect(ctx.destination);
       noiseBuf = makeNoise(ctx, 1.5);
+      // optional room: a convolver fed a synthetic, exponentially decaying impulse
+      if (settings.reverb > 0) {
+        const verb = ctx.createConvolver();
+        verb.buffer = makeImpulse(ctx, settings.reverb);
+        const wet = ctx.createGain();
+        wet.gain.value = settings.wet ?? 0.35;
+        master.connect(verb).connect(wet).connect(ctx.destination);
+      }
     }
     if (ctx.state === "suspended") ctx.resume();
     master.gain.value = settings.enabled ? settings.volume : 0;
@@ -230,4 +238,15 @@ export function createSynth(options = {}) {
       src.stop(t + dur + 0.05);
     },
   };
+}
+
+// Stereo impulse response: noise that decays to silence over `seconds`.
+function makeImpulse(ctx, seconds) {
+  const len = Math.floor(ctx.sampleRate * seconds);
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+  }
+  return buf;
 }
