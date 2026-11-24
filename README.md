@@ -15,6 +15,7 @@ It's plain HTML, CSS and JavaScript modules. There's no build step and nothing t
 | 01 | [Press to feel](interactions/press-to-feel/) | shashankmahajan.in | CSS 3D transforms, `clip-path` reveal, Web Audio, blur crossfade |
 | 02 | [Messy desktop](interactions/messy-desktop/) | Later (Mac app landing page) | Pointer events + capture, z-index stacking, rAF physics (throw, tilt, bounce), glides |
 | 03 | [Star dodger](interactions/star-dodger/) | alyssax.com | Canvas 2D, game loop + delta time, collisions, spawn timers, Web Audio synth |
+| 04 | [ASCII pet](interactions/ascii-pet/) | a portfolio's ASCII garden footer | Canvas text grid, sprites as strings, state machine, grid-snapped particles, Web Audio, localStorage |
 
 ## Experiments
 
@@ -96,6 +97,7 @@ interactions/
   press-to-feel/               01 · playground + breakdown
   messy-desktop/               02 · draggable windows (windows.js holds the mock apps)
   star-dodger/                 03 · canvas mini-game with synthesised sound
+  ascii-pet/                   04 · ASCII creature: feed, pet, wake; grows through stages
   _template/                   copy this to start a new pattern
 apps/
   index.html                   apps hub

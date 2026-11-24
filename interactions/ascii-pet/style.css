@@ -1,0 +1,105 @@
+/* ---------------------------------------------------------------
+   04 · ASCII pet
+   The canvas paints the character grid (ground, food, creature, tool);
+   the DOM holds the placeholder page, the tool dock and the status.
+   --------------------------------------------------------------- */
+
+.arena {
+  --bg: #14130a;
+  --text: #ecead9;
+  --dim: #8f8c74;
+
+  position: relative;
+  height: clamp(480px, 72vh, 660px);
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+.arena:focus-visible { box-shadow: 0 0 0 2px var(--dim); }
+
+.arena canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  cursor: none;          /* the tool is the cursor */
+  touch-action: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* placeholder page: the nav from the original */
+.fake-nav {
+  position: absolute;
+  z-index: 1;
+  top: clamp(20px, 5%, 40px);
+  left: clamp(20px, 6%, 56px);
+  display: grid;
+  gap: 10px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  pointer-events: none;
+}
+.fake-nav .on { color: var(--text); }
+
+/* tools + status, top right */
+.dock {
+  position: absolute;
+  z-index: 1;
+  top: clamp(16px, 4%, 32px);
+  right: clamp(16px, 4%, 32px);
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  max-width: min(320px, 60%);
+  text-align: right;
+}
+.tools { display: flex; gap: 6px; }
+.tool {
+  font: inherit;
+  font-size: 12px;
+  color: var(--dim);
+  background: transparent;
+  border: 1px solid #2c2a18;
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+.tool kbd { font: inherit; opacity: 0.6; margin-right: 2px; }
+.tool:hover { color: var(--text); border-color: #4a4730; }
+.tool[aria-pressed="true"] { color: var(--bg); background: var(--text); border-color: var(--text); }
+.tool:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--dim); min-height: 2.9em; }
+.status { font-size: 12px; color: var(--dim); }
+.status b { color: var(--text); font-weight: 500; }
+.status pre {
+  margin: 6px 0 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  overflow: visible;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #6f6c55;
+}
+
+@media (max-width: 640px) {
+  .arena { height: 560px; }
+  .fake-nav { display: flex; gap: 14px; top: 16px; left: 16px; font-size: 11px; }
+  .dock { top: 44px; left: 16px; right: 16px; max-width: none; justify-items: start; text-align: left; }
+}

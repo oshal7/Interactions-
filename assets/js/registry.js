@@ -43,6 +43,19 @@ export const INTERACTIONS = [
     added: "2026-10-09",
     thumb: "game",
   },
+  {
+    slug: "ascii-pet",
+    number: "04",
+    title: "ASCII pet",
+    summary:
+      "A creature made of text lives at the bottom of the page. Feed it, pet it or ring a bell to wake it, and it grows from an egg into one of three forms.",
+    spottedOn: { label: "a portfolio's ASCII garden footer" },
+    ingredients: ["Canvas text grid", "Sprites as strings", "State machine", "Grid-snapped particles", "Web Audio synth", "localStorage"],
+    accent: "#14130a",
+    accent2: "#e9a23b",
+    added: "2026-11-24",
+    thumb: "ascii",
+  },
   // {
   //   slug: "my-next-pattern",
   //   number: "02",

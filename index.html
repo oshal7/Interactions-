@@ -126,6 +126,12 @@
     .g-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: 44px; font-weight: 500; color: rgba(255,255,255,.18); letter-spacing: -.04em; }
     @media (prefers-reduced-motion: reduce) { .g-spike { animation: none; top: 20%; } }
 
+    /* "ascii" thumbnail: the pet on its tuft */
+    .a-pet { position: absolute; left: 50%; bottom: 10%; transform: translateX(-50%); margin: 0; padding: 0; background: none; border: 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.25; color: #efe7d1; white-space: pre; text-align: left; }
+    .a-pet .f { color: var(--b); } .a-pet .l { color: #b9bd5c; } .a-pet .e { color: #fffdf4; }
+    .a-heart { position: absolute; left: 60%; top: 18%; font-family: var(--font-mono); font-size: 12px; color: #ff7aa8; opacity: 0; transition: opacity .3s, transform .8s; }
+    .card:hover .a-heart { opacity: 1; transform: translateY(-10px); }
+
     .num {
       position: absolute;
       top: 14px;
@@ -210,6 +216,13 @@
       key: `<span class="mini-key"></span>`,
       windows: `<span class="mini-win w1"></span><span class="mini-win w2"></span><span class="mini-win w3"></span>`,
       game: `<span class="g-time">00:12</span><span class="g-spike s1"></span><span class="g-spike s2"></span><span class="g-spike s3"></span><span class="g-star">✦</span><span class="g-dot"></span>`,
+      ascii: `<span class="a-heart">&lt;3</span><pre class="a-pet"><span class="f">   vVVVv</span>
+<span class="f">   (___)</span>
+<span class="l">  .-~Y~-.</span>
+ ( <span class="e">^</span>   <span class="e">^</span> )
+ (   <span class="e">w</span>   )
+  \`-"-"-'
+<span class="l">   ^^^^^</span></pre>`,
     };
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
